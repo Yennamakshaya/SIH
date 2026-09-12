@@ -8,6 +8,7 @@ from app.schemas import (
     VerifyOTPSchema, SendOTPSchema, ForgotPasswordSchema, ResetPasswordSchema
 )
 from app.auth import get_password_hash, verify_password, create_access_token, get_current_user
+from app.notifications import create_notification, notify_admins
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
@@ -140,15 +141,28 @@ def register_farmer(payload: FarmerRegisterSchema, db: Session = Depends(get_db)
         status="verified"
     )
     db.add(farmer)
+    db.commit()
 
-    notification = Notification(
+    # Notify User
+    create_notification(
+        db=db,
         user_id=user.id,
         title="Registration Successful",
-        message=f"Welcome to KisanLink, {payload.full_name}! Your account is active.",
-        notification_type="success"
+        message=f"Welcome to KisanLink, {payload.full_name}! Your farmer account is active.",
+        notification_type="success",
+        related_id=str(user.id),
+        related_type="USER"
     )
-    db.add(notification)
-    db.commit()
+
+    # Notify Admins
+    notify_admins(
+        db=db,
+        title="New Farmer Registration",
+        message=f"New farmer {payload.full_name} registered from {payload.village}, {payload.district}.",
+        notification_type="ADMIN_FARMER_REGISTRATION",
+        related_id=str(user.id),
+        related_type="ADMIN_FARMER"
+    )
 
     return {
         "status": "success",
@@ -212,15 +226,28 @@ def register_buyer(payload: BuyerRegisterSchema, db: Session = Depends(get_db)):
         gst_doc_url="/uploads/gst_doc_pending.pdf"
     )
     db.add(buyer)
+    db.commit()
 
-    notification = Notification(
+    # Notify User
+    create_notification(
+        db=db,
         user_id=user.id,
         title="Buyer Registration Submitted",
         message=f"Thank you {payload.company_name}! Your profile is pending verification by Admin.",
-        notification_type="warning"
+        notification_type="warning",
+        related_id=str(user.id),
+        related_type="USER"
     )
-    db.add(notification)
-    db.commit()
+
+    # Notify Admins
+    notify_admins(
+        db=db,
+        title="New Buyer Registration",
+        message=f"New buyer {payload.company_name} (GSTIN: {payload.gstin}) registered and pending verification.",
+        notification_type="ADMIN_BUYER_REGISTRATION",
+        related_id=str(user.id),
+        related_type="ADMIN_BUYER"
+    )
 
     return {
         "status": "success",

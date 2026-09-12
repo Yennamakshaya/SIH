@@ -168,6 +168,7 @@ const AppContent: React.FC = () => {
           <Route path="/buyer/search-farmers" element={<SearchFarmersPage />} />
           <Route path="/buyer/negotiations" element={<NegotiationsPage />} />
           <Route path="/buyer/agreements" element={<AgreementPage />} />
+          <Route path="/buyer/agreement/:id" element={<AgreementPage />} />
           <Route path="/buyer/slot-booking" element={<SlotBookingPage />} />
           <Route path="/buyer/pickup-confirmation" element={<PickupConfirmationPage />} />
           <Route path="/buyer/transactions" element={<FarmerTransactionsPage />} />
@@ -181,8 +182,8 @@ const AppContent: React.FC = () => {
           <Route path="/admin/farmers" element={<FarmerMgmtPage />} />
           <Route path="/admin/market-data" element={<AdminDashboard />} />
           <Route path="/admin/procurements" element={<AdminDashboard />} />
-          <Route path="/admin/transactions" element={<AdminDashboard />} />
-          <Route path="/admin/payments" element={<AdminDashboard />} />
+          <Route path="/admin/transactions" element={<FarmerTransactionsPage />} />
+          <Route path="/admin/payments" element={<FarmerTransactionsPage />} />
           <Route path="/admin/feedback" element={<AdminDashboard />} />
           <Route path="/admin/grievances" element={<AdminDashboard />} />
           <Route path="/admin/analytics" element={<AdminDashboard />} />

@@ -86,7 +86,7 @@ export const ForgotPasswordPage: React.FC = () => {
             <Lock className="w-8 h-8 text-amber-400" />
           </div>
           <h2 className="text-2xl font-black tracking-tight">{t('resetPassword')}</h2>
-          <p className="text-xs text-slate-300 font-medium">Verify contact and create a new secure password</p>
+          <p className="text-xs text-slate-300 font-medium">{t('resetPasswordSubtitle')}</p>
         </div>
 
         <div className="p-6 space-y-4">
@@ -107,13 +107,13 @@ export const ForgotPasswordPage: React.FC = () => {
           {step === 1 ? (
             <form onSubmit={handleRequestOtp} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">Registered Mobile / Email / Username</label>
+                <label className="text-xs font-bold text-slate-700">{t('mobileOrEmail')}</label>
                 <input
                   type="text"
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="e.g. 9876543210 or farmer@kisanlink.in"
+                  placeholder={t('enterMobileOrEmail')}
                   className="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 />
               </div>
@@ -123,44 +123,44 @@ export const ForgotPasswordPage: React.FC = () => {
                 disabled={loading}
                 className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm rounded-xl shadow-md transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                <span>{loading ? "Sending..." : "Send Verification OTP"}</span>
+                <span>{loading ? t('sending') : t('sendVerificationOtp')}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
           ) : (
             <form onSubmit={handleResetPassword} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">Enter 6-Digit OTP *</label>
+                <label className="text-xs font-bold text-slate-700">{t('enterSixDigitOtp')} *</label>
                 <input
                   type="text"
                   required
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value)}
-                  placeholder="Enter OTP"
+                  placeholder="123456"
                   className="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl text-center font-mono font-bold tracking-widest"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">New Password *</label>
+                <label className="text-xs font-bold text-slate-700">{t('newPassword')} *</label>
                 <input
                   type="password"
                   required
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Minimum 6 characters"
+                  placeholder={t('minSixChars')}
                   className="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">Confirm New Password *</label>
+                <label className="text-xs font-bold text-slate-700">{t('confirmPassword')} *</label>
                 <input
                   type="password"
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Re-enter new password"
+                  placeholder={t('reEnterPassword')}
                   className="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl"
                 />
               </div>
@@ -170,14 +170,14 @@ export const ForgotPasswordPage: React.FC = () => {
                 disabled={loading}
                 className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm rounded-xl shadow-md transition-colors disabled:opacity-50"
               >
-                {loading ? "Updating..." : "Update Password & Login"}
+                {loading ? t('updating') : t('updatePasswordLogin')}
               </button>
             </form>
           )}
 
           <div className="pt-2 text-center text-xs text-slate-500 border-t border-slate-100">
             <a href="/login" className="text-slate-600 hover:text-slate-900 font-bold inline-flex items-center gap-1">
-              <ArrowLeft className="w-3.5 h-3.5" /> Back to Login
+              <ArrowLeft className="w-3.5 h-3.5" /> {t('backToLogin')}
             </a>
           </div>
         </div>

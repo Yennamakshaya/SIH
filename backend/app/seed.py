@@ -10,19 +10,65 @@ from app.models import (
 )
 from app.auth import get_password_hash
 
+def load_env():
+    env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
+    if os.path.exists(env_path):
+        try:
+            with open(env_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        k, v = line.split("=", 1)
+                        os.environ.setdefault(k.strip(), v.strip())
+        except Exception:
+            pass
+
+def run_schema_migrations(db: Session):
+    from sqlalchemy import text
+    migrations = [
+        "ALTER TABLE users ADD COLUMN status VARCHAR DEFAULT 'ACTIVE'",
+        "ALTER TABLE offers ADD COLUMN transport_cost FLOAT DEFAULT 1500.0",
+        "ALTER TABLE offers ADD COLUMN storage_cost FLOAT DEFAULT 0.0",
+        "ALTER TABLE offers ADD COLUMN net_realisation FLOAT DEFAULT 0.0",
+        "ALTER TABLE offers ADD COLUMN current_offer_by VARCHAR DEFAULT 'farmer'",
+        "ALTER TABLE offers ADD COLUMN agreement_id INTEGER",
+        "ALTER TABLE offers ADD COLUMN agreed_price FLOAT",
+        "ALTER TABLE offers ADD COLUMN agreed_quantity FLOAT",
+        "ALTER TABLE offers ADD COLUMN accepted_by VARCHAR",
+        "ALTER TABLE offers ADD COLUMN accepted_at DATETIME",
+        "ALTER TABLE offers ADD COLUMN updated_at DATETIME",
+        "ALTER TABLE negotiations ADD COLUMN sender_id INTEGER",
+        "ALTER TABLE negotiations ADD COLUMN status VARCHAR DEFAULT 'ACTIVE'",
+        "ALTER TABLE procurement_slots ADD COLUMN location VARCHAR",
+        "ALTER TABLE procurement_slots ADD COLUMN crop_name VARCHAR",
+        "ALTER TABLE procurement_slots ADD COLUMN quantity FLOAT",
+        "ALTER TABLE procurement_slots ADD COLUMN farmer_id INTEGER",
+        "ALTER TABLE procurement_slots ADD COLUMN buyer_id INTEGER",
+        "ALTER TABLE procurement_slots ADD COLUMN created_at DATETIME",
+        "ALTER TABLE transactions ADD COLUMN produce_id INTEGER",
+        "ALTER TABLE transactions ADD COLUMN booking_id INTEGER",
+        "ALTER TABLE transactions ADD COLUMN procurement_id INTEGER",
+        "ALTER TABLE transactions ADD COLUMN completed_at DATETIME",
+        "ALTER TABLE payments ADD COLUMN transaction_id INTEGER",
+        "ALTER TABLE payments ADD COLUMN amount_due FLOAT",
+        "ALTER TABLE payments ADD COLUMN payment_reference VARCHAR",
+        "ALTER TABLE notifications ADD COLUMN related_id VARCHAR",
+        "ALTER TABLE notifications ADD COLUMN related_type VARCHAR",
+    ]
+    for sql in migrations:
+        try:
+            db.execute(text(sql))
+            db.commit()
+        except Exception:
+            db.rollback()
+
 def init_admin_account(db: Session):
+    load_env()
+    run_schema_migrations(db)
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@kisanlink.telangana.gov.in").strip()
     admin_username = os.environ.get("ADMIN_USERNAME", "admin").strip()
     admin_password = os.environ.get("ADMIN_PASSWORD", "Admin@KisanLink2026!")
     admin_mobile = os.environ.get("ADMIN_MOBILE", "9999999999").strip()
-
-    # Ensure schema has status column
-    try:
-        from sqlalchemy import text
-        db.execute(text("ALTER TABLE users ADD COLUMN status VARCHAR DEFAULT 'ACTIVE'"))
-        db.commit()
-    except Exception:
-        db.rollback()
 
     # Search for any existing admin account
     admin_user = db.query(User).filter(
@@ -44,14 +90,13 @@ def init_admin_account(db: Session):
         db.add(admin_user)
         db.commit()
         db.refresh(admin_user)
-        print(f"[Seed] Created initial active Admin account: {admin_username} ({admin_email})")
     else:
         admin_user.role = "admin"
         admin_user.status = "ACTIVE"
         admin_user.password_hash = get_password_hash(admin_password)
         db.commit()
-        print(f"[Seed] Existing Admin account verified active: {admin_user.username} ({admin_user.email})")
 
+    print(f"Initial Admin account ready. Use ADMIN_EMAIL from your environment configuration to login. (Account: {admin_email})")
     return admin_user
 
 def seed_db():

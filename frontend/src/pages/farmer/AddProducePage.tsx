@@ -82,10 +82,10 @@ export const AddProducePage: React.FC = () => {
               <Sprout className="w-6 h-6 text-emerald-600" />
               {t('addProduce')}
             </h1>
-            <p className="text-xs text-slate-500">List your agricultural crop harvest for Telangana verified buyers.</p>
+            <p className="text-xs text-slate-500">{t('listProduceSubtitle')}</p>
           </div>
           <span className="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">
-            Telangana Location Scope
+            {t('telanganaLocationScope')}
           </span>
         </div>
 
@@ -156,7 +156,7 @@ export const AddProducePage: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700">Harvest Date</label>
+              <label className="text-xs font-bold text-slate-700">{t('harvestDate')}</label>
               <input
                 type="date"
                 value={harvestDate}
@@ -166,7 +166,7 @@ export const AddProducePage: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700">Village *</label>
+              <label className="text-xs font-bold text-slate-700">{t('village')} *</label>
               <input
                 type="text"
                 required
@@ -178,7 +178,7 @@ export const AddProducePage: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700">Mandal *</label>
+              <label className="text-xs font-bold text-slate-700">{t('mandal')} *</label>
               <input
                 type="text"
                 required
@@ -191,7 +191,7 @@ export const AddProducePage: React.FC = () => {
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-700">Description</label>
+            <label className="text-xs font-bold text-slate-700">{t('description')}</label>
             <textarea
               rows={3}
               value={description}
@@ -203,7 +203,7 @@ export const AddProducePage: React.FC = () => {
 
           {/* Crop Image Upload Section */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-700">Crop Image Upload (JPG/PNG/WEBP)</label>
+            <label className="text-xs font-bold text-slate-700">{t('cropImages')}</label>
             <div className="flex items-center space-x-4">
               {imagePreview && (
                 <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-slate-200">
@@ -219,7 +219,7 @@ export const AddProducePage: React.FC = () => {
               )}
               <label className="cursor-pointer bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl px-4 py-3 text-xs font-bold flex items-center space-x-2 transition-colors">
                 <Upload className="w-4 h-4 text-emerald-600" />
-                <span>Choose Image File</span>
+                <span>{t('chooseImageFile')}</span>
                 <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
               </label>
             </div>
@@ -238,7 +238,7 @@ export const AddProducePage: React.FC = () => {
               disabled={loading}
               className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-colors disabled:opacity-50"
             >
-              {loading ? "Saving..." : t('save')}
+              {loading ? t('updating') : t('save')}
             </button>
           </div>
         </form>

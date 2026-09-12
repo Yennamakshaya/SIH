@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Truck, CheckCircle2, AlertTriangle, ShieldCheck, CreditCard } from 'lucide-react';
 import { StatusTimeline } from '../../components/StatusTimeline';
+import { useLanguage } from '../../context/LanguageContext';
 import axios from 'axios';
 
 export const PickupConfirmationPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const [expectedQty] = useState(500);
   const [receivedQty, setReceivedQty] = useState(495); // Example: 5kg diff
@@ -54,22 +56,22 @@ export const PickupConfirmationPage: React.FC = () => {
           <div>
             <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
               <Truck className="w-6 h-6 text-blue-600" />
-              Pickup Quality & Quantity Confirmation
+              {t('pickupAuditTitle')}
             </h1>
-            <p className="text-xs text-slate-500">Inspect received produce and confirm sandbox payment release to Ramesh Reddy.</p>
+            <p className="text-xs text-slate-500">{t('pickupAuditSubtitle')}</p>
           </div>
           <span className="text-xs bg-blue-100 text-blue-800 font-bold px-3 py-1 rounded-full">
-            Farmer: Ramesh Reddy (Shadnagar)
+            {t('farmerRole')}: Ramesh Reddy (Shadnagar)
           </span>
         </div>
 
         {!qualityConfirmed ? (
           <form onSubmit={handleConfirmQuality} className="space-y-4 bg-slate-50 p-5 rounded-xl border border-slate-200">
-            <h3 className="font-bold text-sm text-slate-800 uppercase">Quality & Weight Audit Form</h3>
+            <h3 className="font-bold text-sm text-slate-800 uppercase">{t('qualityAuditForm')}</h3>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="text-xs font-bold text-slate-700">Expected Quantity (kg)</label>
+                <label className="text-xs font-bold text-slate-700">{t('expectedQuantity')}</label>
                 <input
                   type="number"
                   disabled
@@ -79,7 +81,7 @@ export const PickupConfirmationPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700">Received Quantity (kg) *</label>
+                <label className="text-xs font-bold text-slate-700">{t('receivedQuantity')} *</label>
                 <input
                   type="number"
                   required
@@ -90,28 +92,28 @@ export const PickupConfirmationPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700">Audit Status *</label>
+                <label className="text-xs font-bold text-slate-700">{t('auditStatus')} *</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
                   className="w-full mt-1 p-2 text-xs bg-white border border-slate-300 rounded-xl font-bold"
                 >
-                  <option value="Accepted">Accepted Exactly as Agreed</option>
-                  <option value="Accepted with Adjustment">Accepted with Weight Adjustment</option>
-                  <option value="Rejected">Rejected Quality</option>
+                  <option value="Accepted">{t('acceptedExact')}</option>
+                  <option value="Accepted with Adjustment">{t('acceptedWithAdjustment')}</option>
+                  <option value="Rejected">{t('rejectedQuality')}</option>
                 </select>
               </div>
             </div>
 
             {status.includes('Adjustment') && (
               <div>
-                <label className="text-xs font-bold text-slate-700">Adjustment Reason *</label>
+                <label className="text-xs font-bold text-slate-700">{t('adjustmentReason')} *</label>
                 <input
                   type="text"
                   required
                   value={adjustmentReason}
                   onChange={(e) => setAdjustmentReason(e.target.value)}
-                  placeholder="Reason for difference (e.g. 5kg moisture weight reduction)"
+                  placeholder={t('enterAdjustmentReason')}
                   className="w-full mt-1 p-2 text-xs bg-white border border-slate-300 rounded-xl"
                 />
               </div>
@@ -122,7 +124,7 @@ export const PickupConfirmationPage: React.FC = () => {
               className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow transition-colors flex items-center justify-center gap-1.5"
             >
               <CheckCircle2 className="w-4 h-4" />
-              <span>Confirm Quality & Quantity Audit</span>
+              <span>{t('confirmQualityAudit')}</span>
             </button>
           </form>
         ) : (
@@ -130,38 +132,38 @@ export const PickupConfirmationPage: React.FC = () => {
             <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-xs space-y-1">
               <p className="font-extrabold text-emerald-950 text-sm flex items-center gap-1.5">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                Quality & Weight Confirmed!
+                {t('qualityWeightConfirmed')}
               </p>
-              <p className="text-emerald-800">Received: <span className="font-bold">{receivedQty} kg</span> (Expected: {expectedQty} kg) | Grade: <span className="font-bold">{quality}</span></p>
-              <p className="text-emerald-700 italic">Reason: {adjustmentReason}</p>
+              <p className="text-emerald-800">{t('receivedQuantity')}: <span className="font-bold">{receivedQty} kg</span> ({t('expectedQuantity')}: {expectedQty} kg) | {t('quality')}: <span className="font-bold">{quality}</span></p>
+              <p className="text-emerald-700 italic">{t('adjustmentReason')}: {adjustmentReason}</p>
             </div>
 
             {!paymentDone ? (
               <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-3 text-center">
                 <CreditCard className="w-8 h-8 text-blue-600 mx-auto" />
-                <h3 className="font-extrabold text-slate-900 text-base">Release Sandbox Payment</h3>
-                <p className="text-xs text-slate-600">Total Transaction Amount: <span className="font-black text-emerald-700 text-sm">₹15,500</span></p>
-                <p className="text-[11px] text-slate-500 italic">"Clearly labeled prototype/sandbox payment tracking. No real money transfers."</p>
+                <h3 className="font-extrabold text-slate-900 text-base">{t('releaseSandboxPayment')}</h3>
+                <p className="text-xs text-slate-600">{t('totalGrossTrade')}: <span className="font-black text-emerald-700 text-sm">₹15,500</span></p>
+                <p className="text-[11px] text-slate-500 italic">"{t('sandboxPaymentDisclaimer')}"</p>
                 
                 <button
                   onClick={handleProcessPayment}
                   className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-colors"
                 >
-                  Process Sandbox Payment (Release Funds)
+                  {t('processPaymentBtn')}
                 </button>
               </div>
             ) : (
               <div className="bg-blue-50 border border-blue-200 p-6 rounded-2xl text-center space-y-2">
                 <ShieldCheck className="w-10 h-10 text-blue-600 mx-auto" />
-                <h3 className="font-extrabold text-blue-950 text-lg">Payment Completed!</h3>
-                <p className="text-xs text-blue-800">Transaction Code: <span className="font-mono font-bold">{paymentTxnCode || "TXN-KL-2026-1023"}</span></p>
-                <p className="text-xs text-blue-700 font-bold">Status: Completed | Method: Direct Bank Transfer (Sandbox)</p>
+                <h3 className="font-extrabold text-blue-950 text-lg">{t('paymentCompletedTitle')}</h3>
+                <p className="text-xs text-blue-800">{t('txnCode')}: <span className="font-mono font-bold">{paymentTxnCode || "TXN-KL-2026-1023"}</span></p>
+                <p className="text-xs text-blue-700 font-bold">{t('status')}: {t('statusCompleted')} | {t('paymentMethod')} {t('directBankTransfer')}</p>
                 
                 <button
                   onClick={() => navigate('/buyer/transactions')}
                   className="mt-3 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow"
                 >
-                  View Order History & Rating
+                  {t('orderHistoryAndRating')}
                 </button>
               </div>
             )}

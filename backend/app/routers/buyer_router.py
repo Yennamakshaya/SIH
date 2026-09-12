@@ -20,12 +20,12 @@ def get_buyer_dashboard(current_user: User = Depends(require_role("buyer")), db:
 
     offers_count = db.query(Offer).filter(
         Offer.buyer_id == buyer.id,
-        Offer.status.in_(["Pending", "Negotiating"])
+        Offer.status.in_(["Pending", "Negotiating", "ACTIVE", "BUYER_PENDING", "FARMER_PENDING"])
     ).count()
 
     active_agreements_count = db.query(Agreement).filter(
         Agreement.buyer_id == buyer.id,
-        Agreement.status == "Signed"
+        Agreement.status.in_(["Signed", "Draft", "Active", "ACCEPTED"])
     ).count()
 
     transactions = db.query(Transaction).filter(Transaction.buyer_id == buyer.id).all()

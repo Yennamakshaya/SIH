@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { Sprout, Building2, ArrowRight, Shield } from 'lucide-react';
+import { Sprout, Building2, ArrowRight } from 'lucide-react';
 
 export const RegisterSelectPage: React.FC = () => {
   const navigate = useNavigate();
@@ -22,8 +22,8 @@ export const RegisterSelectPage: React.FC = () => {
 
         <div className="p-6 space-y-6">
           <div className="text-center">
-            <h3 className="text-base font-bold text-slate-800">Select Your Role</h3>
-            <p className="text-xs text-slate-500 mt-0.5">Choose how you want to use KisanLink platform</p>
+            <h3 className="text-base font-bold text-slate-800">{t('selectRole')}</h3>
+            <p className="text-xs text-slate-500 mt-0.5">{t('chooseRoleSubtitle')}</p>
           </div>
 
           <div className="space-y-4">
@@ -41,7 +41,7 @@ export const RegisterSelectPage: React.FC = () => {
                     {t('registerAsFarmer')}
                   </h4>
                   <p className="text-xs text-emerald-800/80 mt-0.5">
-                    For Telangana farmers to sell produce & discover verified buyers
+                    {t('farmerRegisterDesc')}
                   </p>
                 </div>
               </div>
@@ -62,7 +62,7 @@ export const RegisterSelectPage: React.FC = () => {
                     {t('registerAsBuyer')}
                   </h4>
                   <p className="text-xs text-blue-800/80 mt-0.5">
-                    For food processors, exporters & bulk procurement companies
+                    {t('buyerRegisterDesc')}
                   </p>
                 </div>
               </div>

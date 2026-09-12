@@ -162,28 +162,41 @@ class Offer(Base):
     quantity = Column(Float, nullable=False)
     price_per_kg = Column(Float, nullable=False)
     total_value = Column(Float, nullable=False)
+    transport_cost = Column(Float, default=1500.0)
+    storage_cost = Column(Float, default=0.0)
+    net_realisation = Column(Float, default=0.0)
     pickup_date = Column(String, nullable=False)
     delivery_location = Column(String, nullable=False)
     payment_terms = Column(String, default="100% on Quality Confirmation")
     message = Column(Text, nullable=True)
-    status = Column(String, default="Pending") # 'Pending', 'Negotiating', 'Accepted', 'Rejected'
+    status = Column(String, default="ACTIVE") # 'ACTIVE', 'BUYER_PENDING', 'FARMER_PENDING', 'ACCEPTED', 'REJECTED', 'CANCELLED'
     sender_role = Column(String, nullable=False) # 'buyer' or 'farmer'
+    current_offer_by = Column(String, default="farmer") # 'farmer' or 'buyer'
+    agreement_id = Column(Integer, nullable=True)
+    agreed_price = Column(Float, nullable=True)
+    agreed_quantity = Column(Float, nullable=True)
+    accepted_by = Column(String, nullable=True)
+    accepted_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
     farmer = relationship("FarmerProfile")
     buyer = relationship("BuyerProfile")
-    negotiations = relationship("Negotiation", back_populates="offer")
+    produce = relationship("Produce")
+    negotiations = relationship("Negotiation", back_populates="offer", cascade="all, delete-orphan")
 
 class Negotiation(Base):
     __tablename__ = "negotiations"
 
     id = Column(Integer, primary_key=True, index=True)
     offer_id = Column(Integer, ForeignKey("offers.id"), nullable=False)
+    sender_id = Column(Integer, nullable=True)
     sender_role = Column(String, nullable=False) # 'buyer' or 'farmer'
     sender_name = Column(String, nullable=False)
     price_per_kg = Column(Float, nullable=False)
     quantity = Column(Float, nullable=False)
     message = Column(Text, nullable=True)
+    status = Column(String, default="ACTIVE")
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     offer = relationship("Offer", back_populates="negotiations")
@@ -227,8 +240,18 @@ class ProcurementSlot(Base):
     slot_code = Column(String, unique=True, nullable=False)
     slot_date = Column(String, nullable=False)
     time_window = Column(String, nullable=False) # e.g. "10:00 AM – 12:00 PM"
+    location = Column(String, nullable=True)
+    crop_name = Column(String, nullable=True)
+    quantity = Column(Float, nullable=True)
+    farmer_id = Column(Integer, ForeignKey("farmer_profiles.id"), nullable=True)
+    buyer_id = Column(Integer, ForeignKey("buyer_profiles.id"), nullable=True)
     booked_by = Column(String, nullable=False)
     status = Column(String, default="Booked")
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    agreement = relationship("Agreement")
+    farmer = relationship("FarmerProfile")
+    buyer = relationship("BuyerProfile")
 
 class Procurement(Base):
     __tablename__ = "procurements"
@@ -269,11 +292,17 @@ class Payment(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     procurement_id = Column(Integer, ForeignKey("procurements.id"), nullable=False)
+    transaction_id = Column(Integer, ForeignKey("transactions.id"), nullable=True)
     transaction_code = Column(String, unique=True, nullable=False)
     amount = Column(Float, nullable=False)
+    amount_due = Column(Float, nullable=True)
     status = Column(String, default="Pending") # 'Pending', 'Processing', 'Completed', 'Failed'
     payment_method = Column(String, default="Direct Bank Transfer (Prototype Sandbox)")
+    payment_reference = Column(String, nullable=True)
     payment_date = Column(DateTime, nullable=True)
+
+    procurement = relationship("Procurement")
+    transaction = relationship("Transaction", back_populates="payments")
 
 class Transaction(Base):
     __tablename__ = "transactions"
@@ -283,6 +312,9 @@ class Transaction(Base):
     agreement_id = Column(Integer, ForeignKey("agreements.id"), nullable=False)
     farmer_id = Column(Integer, ForeignKey("farmer_profiles.id"), nullable=False)
     buyer_id = Column(Integer, ForeignKey("buyer_profiles.id"), nullable=False)
+    produce_id = Column(Integer, ForeignKey("produce.id"), nullable=True)
+    booking_id = Column(Integer, ForeignKey("procurement_slots.id"), nullable=True)
+    procurement_id = Column(Integer, ForeignKey("procurements.id"), nullable=True)
     crop_name = Column(String, nullable=False)
     quantity = Column(Float, nullable=False)
     price_per_kg = Column(Float, nullable=False)
@@ -292,13 +324,20 @@ class Transaction(Base):
     other_costs = Column(Float, default=0.0)
     net_realisation = Column(Float, nullable=False)
     net_price_per_kg = Column(Float, nullable=False)
-    procurement_status = Column(String, default="Completed")
-    payment_status = Column(String, default="Completed")
-    final_status = Column(String, default="Completed")
+    procurement_status = Column(String, default="HANDOVER_COMPLETED")
+    payment_status = Column(String, default="PENDING") # 'PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'
+    final_status = Column(String, default="HANDOVER_COMPLETED")
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    completed_at = Column(DateTime, nullable=True)
 
+    agreement = relationship("Agreement")
     farmer = relationship("FarmerProfile")
     buyer = relationship("BuyerProfile")
+    produce = relationship("Produce")
+    booking = relationship("ProcurementSlot")
+    procurement = relationship("Procurement")
+    payments = relationship("Payment", back_populates="transaction")
+    feedbacks = relationship("RatingFeedback", back_populates="transaction")
 
 class RatingFeedback(Base):
     __tablename__ = "ratings_feedback"
@@ -315,6 +354,10 @@ class RatingFeedback(Base):
     professionalism = Column(Integer, default=5)
     comments = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    transaction = relationship("Transaction", back_populates="feedbacks")
+    reviewer = relationship("User", foreign_keys=[reviewer_id])
+    reviewee = relationship("User", foreign_keys=[reviewee_id])
 
 class Grievance(Base):
     __tablename__ = "grievances"
@@ -340,6 +383,8 @@ class Notification(Base):
     message = Column(Text, nullable=False)
     is_read = Column(Boolean, default=False)
     notification_type = Column(String, default="info")
+    related_id = Column(String, nullable=True)
+    related_type = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     user = relationship("User", back_populates="notifications")

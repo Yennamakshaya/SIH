@@ -49,7 +49,7 @@ export const AdminLoginPage: React.FC = () => {
             <ShieldCheck className="w-8 h-8 text-purple-300" />
           </div>
           <h2 className="text-2xl font-black tracking-tight">{t('adminLoginTitle')}</h2>
-          <p className="text-xs text-purple-300">Protected Administrative Console for Telangana State APMC Portal</p>
+          <p className="text-xs text-purple-300">{t('adminLoginSubtitle')}</p>
         </div>
 
         {/* Form */}
@@ -61,7 +61,7 @@ export const AdminLoginPage: React.FC = () => {
           )}
 
           <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-300">Admin Username / Email</label>
+            <label className="text-xs font-bold text-slate-300">{t('adminUsername')}</label>
             <div className="relative">
               <User className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
               <input
@@ -69,14 +69,14 @@ export const AdminLoginPage: React.FC = () => {
                 required
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="Enter admin username"
+                placeholder={t('enterAdminUsername')}
                 className="w-full pl-9 pr-3 py-2.5 text-sm bg-slate-900 border border-slate-700 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:outline-none"
               />
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-300">Master Password</label>
+            <label className="text-xs font-bold text-slate-300">{t('masterPassword')}</label>
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
               <input
@@ -84,7 +84,7 @@ export const AdminLoginPage: React.FC = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter admin password"
+                placeholder={t('enterAdminPassword')}
                 className="w-full pl-9 pr-3 py-2.5 text-sm bg-slate-900 border border-slate-700 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:outline-none"
               />
             </div>
@@ -95,13 +95,13 @@ export const AdminLoginPage: React.FC = () => {
             disabled={loading}
             className="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-sm rounded-xl shadow-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            <span>{loading ? "Authenticating Admin..." : "Authenticate Admin Access"}</span>
+            <span>{loading ? t('authenticating') : t('authAdminAccess')}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 
           <div className="text-center pt-2">
             <a href="/login" className="text-xs text-purple-300 hover:text-white underline">
-              Switch to Farmer / Buyer Login
+              {t('switchToFarmerBuyer')}
             </a>
           </div>
         </form>

@@ -7,7 +7,7 @@ import axios from 'axios';
 
 export const BuyersListPage: React.FC = () => {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const produceId = searchParams.get('produce_id');
@@ -39,15 +39,16 @@ export const BuyersListPage: React.FC = () => {
       produce_id: produceId ? Number(produceId) : 1,
       farmer_id: user?.user_id || 1,
       buyer_id: buyer.buyer_id,
-      crop_name: buyer.crops_required || "Tomato",
+      crop_name: buyer.crops_required ? buyer.crops_required.split(',')[0].trim() : "Tomato",
       quantity: buyer.required_quantity || 500,
       price_per_kg: buyer.offered_price || 31,
       pickup_date: "2026-09-12",
       delivery_location: buyer.location,
-      message: `Initial offer for ${buyer.crops_required || 'Tomato'} at ₹${buyer.offered_price}/kg`
+      message: `Initial price offer for ${buyer.crops_required || 'Tomato'} at ₹${buyer.offered_price || 31}/kg (${buyer.required_quantity || 500} kg)`
     })
     .then(res => {
-      navigate('/farmer/negotiations');
+      const newOfferId = res.data.offer_id;
+      navigate(`/farmer/negotiations?offer_id=${newOfferId}`);
     })
     .catch(err => {
       alert("Error initiating negotiation: " + (err.response?.data?.detail || "Please try again."));
@@ -61,20 +62,20 @@ export const BuyersListPage: React.FC = () => {
         <div>
           <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
             <Building2 className="w-6 h-6 text-emerald-600" />
-            Verified Bulk Buyers in Telangana
+            {t('buyersList')} — Telangana
           </h1>
-          <p className="text-xs text-slate-500">Discover verified food processors, exporters, and wholesale buyers near you.</p>
+          <p className="text-xs text-slate-500">{t('telanganaFocus')}</p>
         </div>
         <div className="flex items-center space-x-2 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs text-emerald-800 font-bold">
           <Sparkles className="w-4 h-4 text-amber-500" />
-          <span>AI Net Realisation Ranking Enabled</span>
+          <span>{t('aiRankingEnabled')}</span>
         </div>
       </div>
 
       {/* Filter and Sort Controls */}
       <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
-          <label className="text-[11px] font-bold text-slate-500 uppercase">Crop Filter</label>
+          <label className="text-[11px] font-bold text-slate-500 uppercase">{t('crop')}</label>
           <input
             type="text"
             value={cropFilter}
@@ -85,7 +86,7 @@ export const BuyersListPage: React.FC = () => {
         </div>
 
         <div>
-          <label className="text-[11px] font-bold text-slate-500 uppercase">District Filter</label>
+          <label className="text-[11px] font-bold text-slate-500 uppercase">{t('district')}</label>
           <input
             type="text"
             value={districtFilter}
@@ -96,16 +97,16 @@ export const BuyersListPage: React.FC = () => {
         </div>
 
         <div>
-          <label className="text-[11px] font-bold text-slate-500 uppercase">Sort Buyers By</label>
+          <label className="text-[11px] font-bold text-slate-500 uppercase">{t('score')}</label>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
             className="w-full mt-1 p-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800"
           >
-            <option value="recommended">Best Net Realisation (AI Recommended)</option>
-            <option value="highest_price">Highest Offered Price</option>
-            <option value="highest_rating">Highest Rating</option>
-            <option value="reliability">Highest Reliability Score</option>
+            <option value="recommended">{t('aiRecommendation')}</option>
+            <option value="highest_price">{t('offeredPrice')}</option>
+            <option value="highest_rating">★ Rating</option>
+            <option value="reliability">{t('reliability')}</option>
           </select>
         </div>
       </div>
@@ -123,37 +124,37 @@ export const BuyersListPage: React.FC = () => {
                   <div className="flex items-center space-x-2">
                     <h3 className="font-extrabold text-base text-slate-900">{buyer.company_name}</h3>
                     <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-300">
-                      <ShieldCheck className="w-3 h-3 text-emerald-600" /> Verified
+                      <ShieldCheck className="w-3 h-3 text-emerald-600" /> {t('statusVerified')}
                     </span>
                   </div>
                   <p className="text-xs text-slate-500">{buyer.contact_person} | {buyer.buyer_category}</p>
-                  <p className="text-xs text-slate-600 mt-0.5">Location: <span className="font-semibold text-slate-800">{buyer.location}</span></p>
+                  <p className="text-xs text-slate-600 mt-0.5">{t('location')}: <span className="font-semibold text-slate-800">{buyer.location}</span></p>
                 </div>
 
                 <div className="text-right">
                   <span className="text-xs bg-amber-100 text-amber-900 font-extrabold px-2.5 py-1 rounded-full border border-amber-300">
-                    Score: {buyer.ai_score}/100
+                    {t('score')}: {buyer.ai_score}/100
                   </span>
-                  <p className="text-[11px] text-slate-500 mt-1">⭐ {buyer.rating} ({buyer.reliability_score}% Rel.)</p>
+                  <p className="text-[11px] text-slate-500 mt-1">⭐ {buyer.rating} ({buyer.reliability_score}%)</p>
                 </div>
               </div>
 
               {/* Requirement & Pricing details */}
               <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <span className="text-[10px] text-slate-400 uppercase font-bold">Crop Requirement</span>
+                  <span className="text-[10px] text-slate-400 uppercase font-bold">{t('cropRequirement')}</span>
                   <p className="font-bold text-slate-800">{buyer.crops_required}</p>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 uppercase font-bold">Offered Price</span>
+                  <span className="text-[10px] text-slate-400 uppercase font-bold">{t('offeredPrice')}</span>
                   <p className="font-extrabold text-emerald-700">₹{buyer.offered_price}/kg</p>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 uppercase font-bold">Required Qty</span>
+                  <span className="text-[10px] text-slate-400 uppercase font-bold">{t('requiredQuantity')}</span>
                   <p className="font-bold text-slate-800">{buyer.required_quantity} kg</p>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 uppercase font-bold">Est. Net Realisation</span>
+                  <span className="text-[10px] text-slate-400 uppercase font-bold">{t('estimatedNetRealisation')}</span>
                   <p className="font-extrabold text-slate-900">₹{buyer.estimated_net_realisation?.toLocaleString()}</p>
                 </div>
               </div>
@@ -161,9 +162,11 @@ export const BuyersListPage: React.FC = () => {
               {/* AI Natural Language Explanation */}
               <div className="p-2.5 bg-amber-50/70 border border-amber-200/80 rounded-xl text-xs text-amber-900 space-y-1">
                 <span className="font-bold text-[10px] uppercase text-amber-700 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-amber-500" /> Prototype AI Recommendation Logic:
+                  <Sparkles className="w-3 h-3 text-amber-500" /> {t('aiLogicHeader')}
                 </span>
-                <p className="text-[11px] font-medium leading-relaxed">{buyer.ai_explanation?.en}</p>
+                <p className="text-[11px] font-medium leading-relaxed">
+                  {buyer.ai_explanation?.[language] || buyer.ai_explanation?.en || buyer.ai_explanation}
+                </p>
               </div>
             </div>
 
@@ -173,13 +176,13 @@ export const BuyersListPage: React.FC = () => {
                 onClick={() => setSelectedBuyerProfile(buyer)}
                 className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl"
               >
-                View Profile
+                {t('viewProfile')}
               </button>
               <button
                 onClick={() => handleStartNegotiation(buyer)}
                 className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow transition-colors flex items-center justify-center gap-1"
               >
-                <span>Select & Negotiate</span>
+                <span>{t('selectAndNegotiate')}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -202,12 +205,11 @@ export const BuyersListPage: React.FC = () => {
             </div>
 
             <div className="space-y-2 text-xs">
-              <p><span className="font-bold text-slate-700">Company ID:</span> {selectedBuyerProfile.company_id}</p>
-              <p><span className="font-bold text-slate-700">Contact Person:</span> {selectedBuyerProfile.contact_person}</p>
-              <p><span className="font-bold text-slate-700">Verification Status:</span> <span className="text-emerald-700 font-bold">Verified Buyer (GST Checked)</span></p>
-              <p><span className="font-bold text-slate-700">Completed Transactions:</span> {selectedBuyerProfile.completed_transactions} orders</p>
-              <p><span className="font-bold text-slate-700">Average Response Time:</span> {selectedBuyerProfile.response_time}</p>
-              <p><span className="font-bold text-slate-700">Reliability Score:</span> {selectedBuyerProfile.reliability_score}%</p>
+              <p><span className="font-bold text-slate-700">{t('companyId')}:</span> {selectedBuyerProfile.company_id}</p>
+              <p><span className="font-bold text-slate-700">{t('contactPerson')}:</span> {selectedBuyerProfile.contact_person}</p>
+              <p><span className="font-bold text-slate-700">{t('verificationStatus')}:</span> <span className="text-emerald-700 font-bold">{t('statusVerifiedBuyer')}</span></p>
+              <p><span className="font-bold text-slate-700">{t('completedTrades')}:</span> {selectedBuyerProfile.completed_transactions}</p>
+              <p><span className="font-bold text-slate-700">{t('reliability')}:</span> {selectedBuyerProfile.reliability_score}%</p>
             </div>
 
             <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
@@ -215,7 +217,7 @@ export const BuyersListPage: React.FC = () => {
                 onClick={() => setSelectedBuyerProfile(null)}
                 className="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-xl"
               >
-                Close
+                {t('close')}
               </button>
               <button
                 onClick={() => {
@@ -225,7 +227,7 @@ export const BuyersListPage: React.FC = () => {
                 }}
                 className="px-5 py-2 bg-emerald-600 text-white font-extrabold text-xs rounded-xl shadow"
               >
-                Start Negotiation
+                {t('startNegotiation')}
               </button>
             </div>
           </div>

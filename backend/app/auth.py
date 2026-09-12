@@ -9,6 +9,18 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import User
 
+env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
+if os.path.exists(env_path):
+    try:
+        with open(env_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    os.environ.setdefault(k.strip(), v.strip())
+    except Exception:
+        pass
+
 SECRET_KEY = os.environ.get("SECRET_KEY", "kisanlink_telangana_secret_key_change_in_production")
 ALGORITHM = os.environ.get("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
@@ -42,11 +54,15 @@ def get_current_user(token: Optional[str] = Depends(oauth2_scheme), db: Session 
         user_id_raw = payload.get("sub")
         if user_id_raw is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token: missing sub")
-        user_id = int(user_id_raw)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Could not validate credentials: {str(e)}")
     
-    user = db.query(User).filter(User.id == user_id).first()
+    user = None
+    if str(user_id_raw).isdigit():
+        user = db.query(User).filter(User.id == int(user_id_raw)).first()
+    if not user:
+        user = db.query(User).filter((User.username == str(user_id_raw)) | (User.email == str(user_id_raw))).first()
+
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     return user

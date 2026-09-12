@@ -7,7 +7,7 @@ interface VoiceInputProps {
 }
 
 export const VoiceInput: React.FC<VoiceInputProps> = ({ onResult }) => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [isListening, setIsListening] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
@@ -15,7 +15,7 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onResult }) => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      setStatusMsg("Voice input is not supported in this browser. Please type instead.");
+      setStatusMsg(t('voiceNotSupported'));
       return;
     }
 
@@ -31,7 +31,7 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onResult }) => {
 
       recognition.onstart = () => {
         setIsListening(true);
-        setStatusMsg("Listening...");
+        setStatusMsg(t('voiceListening'));
       };
 
       recognition.onresult = (event: any) => {
@@ -45,7 +45,7 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onResult }) => {
 
       recognition.onerror = (event: any) => {
         setIsListening(false);
-        setStatusMsg("Could not process voice input. Please try typing.");
+        setStatusMsg(t('voiceError'));
       };
 
       recognition.onend = () => {
@@ -55,7 +55,7 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onResult }) => {
       recognition.start();
     } catch (e) {
       setIsListening(false);
-      setStatusMsg("Voice input is not supported in this browser. Please type instead.");
+      setStatusMsg(t('voiceNotSupported'));
     }
   };
 
@@ -64,12 +64,12 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onResult }) => {
       <button
         type="button"
         onClick={startListening}
-        className={`p-2 rounded-full transition-all shadow-sm ${
+        className={`p-2 rounded-full transition-all shadow-sm cursor-pointer ${
           isListening
             ? 'bg-red-500 text-white animate-pulse'
             : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
         }`}
-        title="Speak to input"
+        title={t('speakToInput')}
       >
         {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
       </button>

@@ -40,7 +40,7 @@ export const MyProducePage: React.FC = () => {
             <Sprout className="w-6 h-6 text-emerald-600" />
             {t('myProduce')}
           </h1>
-          <p className="text-xs text-slate-500">Manage your listed produce, edit rates, and discover matching buyers.</p>
+          <p className="text-xs text-slate-500">{t('manageProduceSubtitle')}</p>
         </div>
         <button
           onClick={() => navigate('/farmer/add-produce')}
@@ -58,7 +58,7 @@ export const MyProducePage: React.FC = () => {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search produce by crop name (e.g. Tomato, Paddy)..."
+          placeholder={t('searchProducePlaceholder')}
           className="w-full pl-10 pr-4 py-2.5 bg-white text-sm border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
       </div>
@@ -79,13 +79,13 @@ export const MyProducePage: React.FC = () => {
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                     item.status === 'Available' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
                   }`}>
-                    {item.status}
+                    {item.status === 'Available' ? t('statusAvailable') : item.status}
                   </span>
                 </div>
-                <p className="text-xs text-slate-600">Variety: <span className="font-semibold text-slate-800">{item.variety || "Hybrid"}</span></p>
-                <p className="text-xs text-slate-600">Quantity: <span className="font-bold text-slate-800">{item.quantity} {item.unit}</span> | Grade: <span className="font-bold text-emerald-700">{item.quality}</span></p>
-                <p className="text-xs text-slate-600">Location: {item.location}</p>
-                <p className="text-xs text-slate-600">Expected Price: <span className="font-extrabold text-emerald-700">₹{item.expected_price}/kg</span></p>
+                <p className="text-xs text-slate-600">{t('variety')}: <span className="font-semibold text-slate-800">{item.variety || "Hybrid"}</span></p>
+                <p className="text-xs text-slate-600">{t('quantity')}: <span className="font-bold text-slate-800">{item.quantity} {item.unit}</span> | {t('quality')}: <span className="font-bold text-emerald-700">{item.quality}</span></p>
+                <p className="text-xs text-slate-600">{t('location')}: {item.location}</p>
+                <p className="text-xs text-slate-600">{t('expectedPrice')}: <span className="font-extrabold text-emerald-700">₹{item.expected_price}/kg</span></p>
               </div>
             </div>
 
@@ -94,13 +94,13 @@ export const MyProducePage: React.FC = () => {
                 onClick={() => handleDeactivate(item.id)}
                 className="text-xs text-red-600 hover:text-red-800 font-semibold flex items-center gap-1"
               >
-                <Trash2 className="w-3.5 h-3.5" /> Deactivate
+                <Trash2 className="w-3.5 h-3.5" /> {t('deactivate')}
               </button>
               <button
                 onClick={() => navigate(`/farmer/buyers?produce_id=${item.id}`)}
                 className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm flex items-center gap-1 transition-colors"
               >
-                <span>Find Buyers</span>
+                <span>{t('findBuyers')}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>

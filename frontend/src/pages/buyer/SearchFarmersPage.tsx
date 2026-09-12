@@ -65,16 +65,16 @@ export const SearchFarmersPage: React.FC = () => {
         <div>
           <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
             <Sprout className="w-6 h-6 text-emerald-600" />
-            Discover Telangana Farmers & Available Produce
+            {t('searchFarmers')} — Telangana
           </h1>
-          <p className="text-xs text-slate-500">Directly connect with local Telangana farmers, inspect crop quality, and send trade offers.</p>
+          <p className="text-xs text-slate-500">{t('telanganaFocus')}</p>
         </div>
       </div>
 
       {/* Search Filters */}
       <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
-          <label className="text-[11px] font-bold text-slate-500 uppercase">Crop Name</label>
+          <label className="text-[11px] font-bold text-slate-500 uppercase">{t('cropName')}</label>
           <input
             type="text"
             value={cropFilter}
@@ -85,7 +85,7 @@ export const SearchFarmersPage: React.FC = () => {
         </div>
 
         <div>
-          <label className="text-[11px] font-bold text-slate-500 uppercase">District Filter</label>
+          <label className="text-[11px] font-bold text-slate-500 uppercase">{t('district')}</label>
           <input
             type="text"
             value={districtFilter}
@@ -96,7 +96,7 @@ export const SearchFarmersPage: React.FC = () => {
         </div>
 
         <div>
-          <label className="text-[11px] font-bold text-slate-500 uppercase">Max Offer Price (₹/kg)</label>
+          <label className="text-[11px] font-bold text-slate-500 uppercase">{t('maxBudgetPrice')}</label>
           <input
             type="number"
             value={maxPrice}
@@ -120,26 +120,26 @@ export const SearchFarmersPage: React.FC = () => {
                   </p>
                 </div>
                 <span className="text-xs bg-blue-100 text-blue-900 font-bold px-2.5 py-1 rounded-full">
-                  Match: {item.match_score}%
+                  {t('matchScore')}: {item.match_score}%
                 </span>
               </div>
 
               {/* Produce detail */}
               <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase">Crop & Variety</span>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase">{t('crop')}</span>
                   <p className="font-bold text-slate-800">{item.crop_name} ({item.quality})</p>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase">Available Qty</span>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase">{t('quantity')}</span>
                   <p className="font-bold text-slate-800">{item.quantity} kg</p>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase">Farmer Rate</span>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase">{t('expectedPrice')}</span>
                   <p className="font-extrabold text-emerald-700">₹{item.expected_price}/kg</p>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase">Reliability Score</span>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase">{t('reliability')}</span>
                   <p className="font-bold text-slate-800">{item.reliability_score}% ⭐ {item.rating}</p>
                 </div>
               </div>
@@ -155,7 +155,7 @@ export const SearchFarmersPage: React.FC = () => {
               }}
               className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow transition-colors flex items-center justify-center gap-1.5"
             >
-              <span>Send Official Offer To Farmer</span>
+              <span>{t('sendOfficialOffer')}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -166,12 +166,12 @@ export const SearchFarmersPage: React.FC = () => {
       {offerModalItem && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4">
           <form onSubmit={handleSendOfferSubmit} className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
-            <h3 className="font-bold text-base text-slate-800">Send Offer to {offerModalItem.farmer_name}</h3>
-            <p className="text-xs text-slate-500">Crop: {offerModalItem.crop_name} ({offerModalItem.quality}) | Location: {offerModalItem.location}</p>
+            <h3 className="font-bold text-base text-slate-800">{t('sendOffer')} — {offerModalItem.farmer_name}</h3>
+            <p className="text-xs text-slate-500">{t('crop')}: {offerModalItem.crop_name} ({offerModalItem.quality}) | {t('location')}: {offerModalItem.location}</p>
             
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[11px] font-bold text-slate-600">Offer Price (₹/kg)</label>
+                <label className="text-[11px] font-bold text-slate-600">{t('offeredPrice')} (₹/kg)</label>
                 <input
                   type="number"
                   required
@@ -181,7 +181,7 @@ export const SearchFarmersPage: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="text-[11px] font-bold text-slate-600">Quantity (kg)</label>
+                <label className="text-[11px] font-bold text-slate-600">{t('quantity')} (kg)</label>
                 <input
                   type="number"
                   required
@@ -193,12 +193,12 @@ export const SearchFarmersPage: React.FC = () => {
             </div>
 
             <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs flex justify-between font-bold">
-              <span className="text-slate-600">Calculated Offer Total Value:</span>
+              <span className="text-slate-600">{t('grossValue')}:</span>
               <span className="text-slate-900">₹{(offerPrice * offerQty).toLocaleString()}</span>
             </div>
 
             <div>
-              <label className="text-[11px] font-bold text-slate-600">Message to Farmer</label>
+              <label className="text-[11px] font-bold text-slate-600">{t('negotiationNote')}</label>
               <textarea
                 rows={2}
                 value={offerMsg}
@@ -214,13 +214,13 @@ export const SearchFarmersPage: React.FC = () => {
                 onClick={() => setOfferModalItem(null)}
                 className="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-xl"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 type="submit"
                 className="px-5 py-2 bg-blue-600 text-white font-extrabold text-xs rounded-xl shadow"
               >
-                Send Offer Now
+                {t('sendOffer')}
               </button>
             </div>
           </form>

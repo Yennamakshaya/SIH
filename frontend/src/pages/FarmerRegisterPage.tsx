@@ -47,53 +47,53 @@ export const FarmerRegisterPage: React.FC = () => {
 
     // Form Validations
     if (!fullName.trim()) {
-      setValidationError("Please enter your full name.");
+      setValidationError(t('errorEnterFullName'));
       return;
     }
     const cleanMobile = mobileNumber.trim().replace(/\s+/g, "").replace("+91", "");
     if (!cleanMobile || cleanMobile.length < 10) {
-      setValidationError("Please enter a valid 10-digit mobile number.");
+      setValidationError(t('errorValidMobile'));
       return;
     }
     if (!address.trim()) {
-      setValidationError("Please enter your address.");
+      setValidationError(t('errorEnterAddress'));
       return;
     }
     if (!village.trim()) {
-      setValidationError("Please enter your village name.");
+      setValidationError(t('errorEnterVillage'));
       return;
     }
     if (!mandal.trim()) {
-      setValidationError("Please enter your mandal name.");
+      setValidationError(t('errorEnterMandal'));
       return;
     }
     if (!district.trim()) {
-      setValidationError("Please select your district.");
+      setValidationError(t('errorSelectDistrict'));
       return;
     }
     if (!pincode.trim() || pincode.trim().length < 6) {
-      setValidationError("Please enter a valid 6-digit pincode.");
+      setValidationError(t('errorValidPincode'));
       return;
     }
     const cleanAadhaar = aadhaarNumber.replace(/\s+/g, "");
     if (!cleanAadhaar || cleanAadhaar.length < 12) {
-      setValidationError("Please enter a valid 12-digit Aadhaar number.");
+      setValidationError(t('errorValidAadhaar'));
       return;
     }
     if (!email.trim() || !email.includes("@")) {
-      setValidationError("Please enter a valid email address.");
+      setValidationError(t('errorValidEmail'));
       return;
     }
     if (!username.trim()) {
-      setValidationError("Please enter a username.");
+      setValidationError(t('errorEnterUsername'));
       return;
     }
     if (!password || password.length < 6) {
-      setValidationError("Password must be at least 6 characters long.");
+      setValidationError(t('errorPasswordLength'));
       return;
     }
     if (password !== confirmPassword) {
-      setValidationError("Passwords do not match.");
+      setValidationError(t('errorPasswordsMismatch'));
       return;
     }
 
@@ -118,13 +118,13 @@ export const FarmerRegisterPage: React.FC = () => {
       farm_size: "5 Acres"
     })
       .then(() => {
-        setSuccessMessage("Your Farmer account has been created successfully. Redirecting to Farmer Login...");
+        setSuccessMessage(t('successFarmerAccountCreated'));
         setTimeout(() => {
           navigate('/login?role=farmer');
         }, 2000);
       })
       .catch(err => {
-        setValidationError(err.response?.data?.detail || "Registration failed. Please check your details.");
+        setValidationError(err.response?.data?.detail || t('errorAuthFailed'));
       })
       .finally(() => setLoading(false));
   };
@@ -139,7 +139,7 @@ export const FarmerRegisterPage: React.FC = () => {
             <Sprout className="w-8 h-8 text-amber-300" />
           </div>
           <h2 className="text-2xl font-black tracking-tight">{t('farmerRegistration')}</h2>
-          <p className="text-xs text-emerald-200 font-medium">Telangana Farmer Registration Portal</p>
+          <p className="text-xs text-emerald-200 font-medium">{t('farmerRegisterPortal')}</p>
         </div>
 
         {/* Form Body */}
@@ -167,67 +167,67 @@ export const FarmerRegisterPage: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-slate-700">Full Name *</label>
+                <label className="text-xs font-bold text-slate-700">{t('fullName')} *</label>
                 <input
                   type="text"
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="e.g. Ramesh Reddy"
+                  placeholder={t('enterFullName')}
                   className="w-full mt-1 p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700">Mobile Number *</label>
+                <label className="text-xs font-bold text-slate-700">{t('mobileNumber')} *</label>
                 <input
                   type="tel"
                   required
                   value={mobileNumber}
                   onChange={(e) => setMobileNumber(e.target.value)}
-                  placeholder="e.g. 9876543210"
+                  placeholder={t('enterMobileNumber')}
                   className="w-full mt-1 p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="text-xs font-bold text-slate-700">Address / House No. *</label>
+                <label className="text-xs font-bold text-slate-700">{t('addressHouse')} *</label>
                 <input
                   type="text"
                   required
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  placeholder="e.g. H.No 4-12, Main Street"
+                  placeholder={t('enterAddress')}
                   className="w-full mt-1 p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700">Village *</label>
+                <label className="text-xs font-bold text-slate-700">{t('village')} *</label>
                 <input
                   type="text"
                   required
                   value={village}
                   onChange={(e) => setVillage(e.target.value)}
-                  placeholder="e.g. Shadnagar"
+                  placeholder={t('enterVillage')}
                   className="w-full mt-1 p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700">Mandal *</label>
+                <label className="text-xs font-bold text-slate-700">{t('mandal')} *</label>
                 <input
                   type="text"
                   required
                   value={mandal}
                   onChange={(e) => setMandal(e.target.value)}
-                  placeholder="e.g. Farooqnagar"
+                  placeholder={t('enterMandal')}
                   className="w-full mt-1 p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700">Telangana District *</label>
+                <label className="text-xs font-bold text-slate-700">{t('telanganaDistrict')} *</label>
                 <select
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
@@ -240,7 +240,7 @@ export const FarmerRegisterPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700">State</label>
+                <label className="text-xs font-bold text-slate-700">{t('state')}</label>
                 <input
                   type="text"
                   disabled
@@ -250,13 +250,13 @@ export const FarmerRegisterPage: React.FC = () => {
               </div>
 
               <div className="sm:col-span-2">
-                <label className="text-xs font-bold text-slate-700">Pincode *</label>
+                <label className="text-xs font-bold text-slate-700">{t('pincode')} *</label>
                 <input
                   type="text"
                   required
                   value={pincode}
                   onChange={(e) => setPincode(e.target.value)}
-                  placeholder="e.g. 509216"
+                  placeholder={t('enterPincode')}
                   className="w-full mt-1 p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 />
               </div>
@@ -271,13 +271,13 @@ export const FarmerRegisterPage: React.FC = () => {
             </h3>
 
             <div>
-              <label className="text-xs font-bold text-slate-700">Aadhaar Number (12 Digits) *</label>
+              <label className="text-xs font-bold text-slate-700">{t('aadhaarNumber')} *</label>
               <input
                 type="text"
                 required
                 value={aadhaarNumber}
                 onChange={(e) => setAadhaarNumber(e.target.value)}
-                placeholder="e.g. 1234 5678 9012"
+                placeholder={t('enterAadhaar')}
                 className="w-full mt-1 p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none"
               />
               <p className="text-[11px] text-slate-500 mt-1">{t('aadhaarMaskedNote')}</p>
@@ -293,49 +293,49 @@ export const FarmerRegisterPage: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-slate-700">Email Address *</label>
+                <label className="text-xs font-bold text-slate-700">{t('emailAddress')} *</label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="e.g. ramesh@kisanlink.in"
+                  placeholder={t('enterEmail')}
                   className="w-full mt-1 p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700">Username *</label>
+                <label className="text-xs font-bold text-slate-700">{t('username')} *</label>
                 <input
                   type="text"
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="e.g. ramesh_reddy"
+                  placeholder={t('enterUsername')}
                   className="w-full mt-1 p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700">Password *</label>
+                <label className="text-xs font-bold text-slate-700">{t('password')} *</label>
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Minimum 6 characters"
+                  placeholder={t('minSixChars')}
                   className="w-full mt-1 p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700">Confirm Password *</label>
+                <label className="text-xs font-bold text-slate-700">{t('confirmPassword')} *</label>
                 <input
                   type="password"
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Re-enter password"
+                  placeholder={t('reEnterPassword')}
                   className="w-full mt-1 p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 />
               </div>
@@ -345,9 +345,9 @@ export const FarmerRegisterPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading || !!successMessage}
-            className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm rounded-xl shadow-md transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm rounded-xl shadow-md transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span>{loading ? "Creating Farmer Account..." : "Create Farmer Account"}</span>
+            <span>{loading ? t('creatingAccount') : t('createFarmerAccountBtn')}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 

@@ -105,6 +105,19 @@ def verify_buyer(buyer_id: int, action: str, current_user: User = Depends(requir
     elif action == "suspend":
         buyer.verification_status = "suspended"
     db.commit()
+
+    if buyer.user_id:
+        from app.notifications import create_notification
+        create_notification(
+            db=db,
+            user_id=buyer.user_id,
+            title="Buyer Verification Updated",
+            message=f"Your buyer verification status has been updated to '{buyer.verification_status}' by Telangana Administrator.",
+            notification_type="success" if action == "approve" else "warning",
+            related_id=str(buyer.id),
+            related_type="BUYER"
+        )
+
     return {"message": f"Buyer verification status updated to {buyer.verification_status}"}
 
 @router.get("/analytics")

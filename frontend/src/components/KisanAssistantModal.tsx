@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Bot, Send, Sparkles } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { VoiceInput } from './VoiceInput';
@@ -18,37 +18,27 @@ interface KisanAssistantModalProps {
 
 export const KisanAssistantModal: React.FC<KisanAssistantModalProps> = ({ isOpen, onClose }) => {
   const { language, t } = useLanguage();
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      sender: 'bot',
-      text: language === 'te' 
-        ? "నమస్కారం! నేను కిసాన్ అసిస్టెంట్. నేను మీకు మార్కెట్ ధరలు, కొనుగోలుదారులు మరియు నికర ఆదాయంలో సహాయపడగలను."
-        : language === 'hi'
-        ? "नमस्ते! मैं किसान असिस्टेंट हूँ। मैं आपको मंडी भाव, खरीदारों और शुद्ध आय में मदद कर सकता हूँ।"
-        : "Hello! I am Kisan Assistant. Ask me about crop market prices, recommended buyers, net realisation, or slot booking.",
-      label: "Kisan Assistant — Prototype"
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputQuery, setInputQuery] = useState('');
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    setMessages([
+      {
+        sender: 'bot',
+        text: t('kisanWelcome'),
+        label: `${t('kisanAssistantTitle')} — ${t('prototypeAi')}`
+      }
+    ]);
+  }, [language]);
+
   if (!isOpen) return null;
 
-  const quickPrompts = language === 'te' ? [
-    "టమాటా ధర ఎంత?",
-    "మంచి కొనుగోలుదారు ఎవరు?",
-    "నా నికర ఆదాయం ఎంత?",
-    "సరుకును ఎలా జోడించాలి?"
-  ] : language === 'hi' ? [
-    "टमाटर का भाव कितना है?",
-    "सबसे अच्छा खरीदार कौन है?",
-    "मेरी शुद्ध आय कितनी है?",
-    "फसल कैसे जोड़ें?"
-  ] : [
-    "What is today's tomato price?",
-    "Which buyer is best?",
-    "What is my net realisation?",
-    "How do I add produce?"
+  const quickPrompts = [
+    t('promptTomato'),
+    t('promptBuyer'),
+    t('promptNetIncome'),
+    t('promptAddCrop')
   ];
 
   const handleSend = (queryToSend?: string) => {
@@ -69,15 +59,19 @@ export const KisanAssistantModal: React.FC<KisanAssistantModalProps> = ({ isOpen
         sender: 'bot',
         text: res.data.answer,
         intent: res.data.intent,
-        label: res.data.label || "Kisan Assistant — Prototype"
+        label: res.data.label || `${t('kisanAssistantTitle')} — ${t('prototypeAi')}`
       };
       setMessages(prev => [...prev, botMsg]);
     })
     .catch(() => {
       const errorMsg: Message = {
         sender: 'bot',
-        text: "Sorry, I am currently unable to process your request. Please try again.",
-        label: "Kisan Assistant — Prototype"
+        text: language === 'te' 
+          ? "క్షమించండి, ప్రస్తుతం మీ అభ్యర్థనను ప్రాసెస్ చేయడం సాధ్యం కాలేదు. దయచేసి మళ్లీ ప్రయత్నించండి."
+          : language === 'hi'
+          ? "क्षमा करें, वर्तमान में आपके अनुरोध को संसाधित करने में असमर्थ हूँ। कृपया पुनः प्रयास करें।"
+          : "Sorry, I am currently unable to process your request. Please try again.",
+        label: `${t('kisanAssistantTitle')} — ${t('prototypeAi')}`
       };
       setMessages(prev => [...prev, errorMsg]);
     })
@@ -96,17 +90,17 @@ export const KisanAssistantModal: React.FC<KisanAssistantModalProps> = ({ isOpen
             </div>
             <div>
               <h3 className="font-bold text-base flex items-center gap-1.5">
-                Kisan Assistant
+                {t('kisanAssistantTitle')}
                 <span className="text-[10px] bg-emerald-800 text-amber-300 font-semibold px-2 py-0.5 rounded-full border border-emerald-600">
-                  Prototype AI
+                  {t('prototypeAi')}
                 </span>
               </h3>
-              <p className="text-[11px] text-emerald-200">Trilingual Voice & Chat Assistance (EN | TE | HI)</p>
+              <p className="text-[11px] text-emerald-200">{t('kisanAssistantSubtitle')}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-emerald-200 hover:text-white hover:bg-emerald-800 rounded-lg transition-colors"
+            className="p-1.5 text-emerald-200 hover:text-white hover:bg-emerald-800 rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -139,7 +133,7 @@ export const KisanAssistantModal: React.FC<KisanAssistantModalProps> = ({ isOpen
             <div className="flex justify-start">
               <div className="bg-white text-slate-500 border border-slate-200 rounded-2xl px-4 py-2.5 text-xs flex items-center space-x-2">
                 <Sparkles className="w-4 h-4 text-amber-500 animate-spin" />
-                <span>Kisan Assistant is thinking...</span>
+                <span>{t('kisanThinking')}</span>
               </div>
             </div>
           )}
@@ -151,7 +145,7 @@ export const KisanAssistantModal: React.FC<KisanAssistantModalProps> = ({ isOpen
             <button
               key={i}
               onClick={() => handleSend(prompt)}
-              className="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-1 rounded-full whitespace-nowrap border border-emerald-200 transition-colors"
+              className="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-1 rounded-full whitespace-nowrap border border-emerald-200 transition-colors cursor-pointer"
             >
               {prompt}
             </button>
@@ -166,17 +160,13 @@ export const KisanAssistantModal: React.FC<KisanAssistantModalProps> = ({ isOpen
             value={inputQuery}
             onChange={(e) => setInputQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder={
-              language === 'te' ? "ప్రశ్నను ఇక్కడ నమోదు చేయండి..."
-              : language === 'hi' ? "प्रश्न यहाँ टाइप करें..."
-              : "Ask about crop prices, buyers, net income..."
-            }
+            placeholder={t('kisanInputPlaceholder')}
             className="flex-1 text-sm bg-slate-100 text-slate-800 rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
           <button
             onClick={() => handleSend()}
             disabled={!inputQuery.trim()}
-            className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl disabled:opacity-50 transition-colors"
+            className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl disabled:opacity-50 transition-colors cursor-pointer"
           >
             <Send className="w-4 h-4" />
           </button>

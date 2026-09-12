@@ -1,6 +1,26 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
+// Ensure Authorization header is always attached from storage on every request
+axios.interceptors.request.use((config) => {
+  const saved = localStorage.getItem('kisanlink_session');
+  if (saved) {
+    try {
+      const session = JSON.parse(saved);
+      if (session?.token) {
+        if (config.headers && typeof (config.headers as any).set === 'function') {
+          (config.headers as any).set('Authorization', `Bearer ${session.token}`);
+        } else if (config.headers) {
+          (config.headers as any)['Authorization'] = `Bearer ${session.token}`;
+        }
+      }
+    } catch (e) {
+      // ignore json parse error
+    }
+  }
+  return config;
+});
+
 export interface UserSession {
   token: string;
   role: 'farmer' | 'buyer' | 'admin';

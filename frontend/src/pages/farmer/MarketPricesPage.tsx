@@ -34,9 +34,9 @@ export const MarketPricesPage: React.FC = () => {
         <div>
           <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
             <TrendingUp className="w-6 h-6 text-emerald-600" />
-            {t('marketPrice')} & Price History
+            {t('marketPrice')} & {t('priceHistory')}
           </h1>
-          <p className="text-xs text-slate-500">Real-time daily market price rates from APMC Mandis across Telangana.</p>
+          <p className="text-xs text-slate-500">{t('apmcMarketDisclaimer')}</p>
         </div>
         <div className="flex items-center space-x-2 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl text-xs text-amber-900 font-bold">
           <Info className="w-4 h-4 text-amber-600" />
@@ -50,9 +50,9 @@ export const MarketPricesPage: React.FC = () => {
           <div>
             <h3 className="font-bold text-base text-slate-800 flex items-center gap-2">
               <BarChart2 className="w-5 h-5 text-emerald-600" />
-              {cropFilter} Market Price Trend — {historyData?.market || "Bowenpally Market"}
+              {cropFilter} {t('marketPriceTrend')} — {historyData?.market || t('bowenpallyMarket')}
             </h3>
-            <p className="text-xs text-slate-500">Current Modal Price: <span className="font-bold text-emerald-700">₹{historyData?.current_price}/kg</span> | 30-Day Avg: ₹{historyData?.average_price}/kg</p>
+            <p className="text-xs text-slate-500">{t('currentModalPrice')}: <span className="font-bold text-emerald-700">₹{historyData?.current_price}/kg</span> | {t('thirtyDayAvg')}: ₹{historyData?.average_price}/kg</p>
           </div>
 
           {/* Timeframe & Crop selector */}
@@ -71,15 +71,20 @@ export const MarketPricesPage: React.FC = () => {
             </select>
 
             <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
-              {['7 Days', '30 Days', '3 Months', '6 Months'].map((tf) => (
+              {[
+                { label: t('sevenDays'), value: '7 Days' },
+                { label: t('thirtyDays'), value: '30 Days' },
+                { label: t('threeMonths'), value: '3 Months' },
+                { label: t('sixMonths'), value: '6 Months' }
+              ].map((tf) => (
                 <button
-                  key={tf}
-                  onClick={() => setTimeframe(tf)}
+                  key={tf.value}
+                  onClick={() => setTimeframe(tf.value)}
                   className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all ${
-                    timeframe === tf ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                    timeframe === tf.value ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  {tf}
+                  {tf.label}
                 </button>
               ))}
             </div>
@@ -102,41 +107,41 @@ export const MarketPricesPage: React.FC = () => {
                 <YAxis tick={{ fontSize: 11, fill: '#64748b' }} domain={['auto', 'auto']} />
                 <Tooltip
                   contentStyle={{ backgroundColor: '#0f172a', borderRadius: '12px', border: 'none', color: '#fff', fontSize: '12px' }}
-                  formatter={(value: any) => [`₹${value}/kg`, 'Price']}
+                  formatter={(value: any) => [`₹${value}/kg`, t('modalPrice')]}
                 />
                 <Area type="monotone" dataKey="price" stroke="#059669" strokeWidth={3} fillOpacity={1} fill="url(#priceGrad)" />
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-full flex items-center justify-center text-slate-400 text-xs">Loading chart data...</div>
+            <div className="h-full flex items-center justify-center text-slate-400 text-xs">Loading...</div>
           )}
         </div>
 
         {/* Price History Disclaimer */}
         <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-slate-600 flex items-center justify-between">
-          <p className="italic">"Price trends are informational and do not guarantee future prices."</p>
-          <span className="text-[11px] text-slate-400 font-medium">Last Updated: Today</span>
+          <p className="italic">"{t('priceHistoryDisclaimer')}"</p>
+          <span className="text-[11px] text-slate-400 font-medium">{t('lastUpdatedToday')}</span>
         </div>
       </div>
 
       {/* APMC Daily Market Prices Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden space-y-3 p-5">
         <h3 className="font-bold text-base text-slate-800">
-          APMC Telangana Mandi Rates Summary
+          {t('apmcRatesSummary')}
         </h3>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
-                <th className="p-3">Crop</th>
-                <th className="p-3">APMC Market</th>
-                <th className="p-3">District</th>
-                <th className="p-3">Min Price</th>
-                <th className="p-3">Modal Price</th>
-                <th className="p-3">Max Price</th>
-                <th className="p-3">Change</th>
-                <th className="p-3">Source</th>
+                <th className="p-3">{t('crop')}</th>
+                <th className="p-3">{t('apmcMarkets')}</th>
+                <th className="p-3">{t('district')}</th>
+                <th className="p-3">{t('minPrice')}</th>
+                <th className="p-3">{t('modalPrice')}</th>
+                <th className="p-3">{t('maxPrice')}</th>
+                <th className="p-3">{t('change')}</th>
+                <th className="p-3">{t('source')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">

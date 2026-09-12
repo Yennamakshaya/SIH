@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Sprout, ShieldCheck, UserX, UserCheck } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 import axios from 'axios';
 
 export const FarmerMgmtPage: React.FC = () => {
+  const { t } = useLanguage();
   const [farmers, setFarmers] = useState<any[]>([]);
 
   const fetchFarmers = () => {
@@ -27,9 +29,9 @@ export const FarmerMgmtPage: React.FC = () => {
       <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
         <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
           <Sprout className="w-6 h-6 text-emerald-600" />
-          Manage Telangana Farmers
+          {t('manageFarmersTitle')}
         </h1>
-        <p className="text-xs text-slate-500">View registered farmers across Telangana districts, masked Aadhaar records, and account statuses.</p>
+        <p className="text-xs text-slate-500">{t('manageFarmersSubtitle')}</p>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-5">
@@ -37,13 +39,13 @@ export const FarmerMgmtPage: React.FC = () => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
-                <th className="p-3">Farmer Name</th>
-                <th className="p-3">Village / Mandal</th>
-                <th className="p-3">District</th>
-                <th className="p-3">Aadhaar (Masked)</th>
-                <th className="p-3">Farm Size</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Action</th>
+                <th className="p-3">{t('farmerName')}</th>
+                <th className="p-3">{t('villageMandal')}</th>
+                <th className="p-3">{t('district')}</th>
+                <th className="p-3">{t('aadhaarMasked')}</th>
+                <th className="p-3">{t('farmSize')}</th>
+                <th className="p-3">{t('status')}</th>
+                <th className="p-3">{t('actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
@@ -58,7 +60,7 @@ export const FarmerMgmtPage: React.FC = () => {
                     <span className={`font-bold px-2 py-0.5 rounded-full text-[10px] ${
                       f.status === 'verified' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
                     }`}>
-                      {f.status}
+                      {f.status === 'verified' ? t('statusVerified') : t('statusSuspended')}
                     </span>
                   </td>
                   <td className="p-3">
@@ -68,7 +70,7 @@ export const FarmerMgmtPage: React.FC = () => {
                         f.status === 'suspended' ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700 hover:bg-red-100 hover:text-red-700'
                       }`}
                     >
-                      {f.status === 'suspended' ? 'Activate' : 'Suspend'}
+                      {f.status === 'suspended' ? t('activateUser') : t('suspendUser')}
                     </button>
                   </td>
                 </tr>

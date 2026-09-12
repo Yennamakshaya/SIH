@@ -5,7 +5,7 @@ import { Sprout, ShoppingBag, Clock, FileCheck, ShieldCheck, ArrowRight, Trendin
 import axios from 'axios';
 
 export const FarmerDashboard: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [summary, setSummary] = useState<any>(null);
   const [recommendedBuyers, setRecommendedBuyers] = useState<any[]>([]);
@@ -28,13 +28,13 @@ export const FarmerDashboard: React.FC = () => {
       <div className="bg-gradient-to-r from-emerald-800 to-emerald-900 text-white rounded-2xl p-6 shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <span className="text-xs bg-emerald-700/80 text-amber-300 font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-            Farmer Dashboard — Telangana
+            {t('farmerDashboardTelangana')}
           </span>
           <h1 className="text-2xl sm:text-3xl font-extrabold mt-1">
-            Welcome, {summary?.farmer_name || "Ramesh Reddy"} 👋
+            {t('welcomeFarmer')} {summary?.farmer_name || "Ramesh Reddy"} 👋
           </h1>
           <p className="text-xs text-emerald-200 mt-1">
-            Location: {summary?.village || "Shadnagar"}, {summary?.district || "Rangareddy"}, Telangana | Reliability: {summary?.reliability_score || 96.5}% ⭐ {summary?.rating || 4.9}
+            {t('location')}: {summary?.village || "Shadnagar"}, {summary?.district || "Rangareddy"}, Telangana | {t('reliability')}: {summary?.reliability_score || 96.5}% ⭐ {summary?.rating || 4.9}
           </p>
         </div>
 
@@ -51,7 +51,7 @@ export const FarmerDashboard: React.FC = () => {
             className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl border border-emerald-500 transition-all flex items-center gap-1.5"
           >
             <TrendingUp className="w-4 h-4" />
-            <span>APMC Market Prices</span>
+            <span>{t('marketPrice')}</span>
           </button>
         </div>
       </div>
@@ -61,25 +61,25 @@ export const FarmerDashboard: React.FC = () => {
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-1">
           <span className="text-xs text-slate-500 font-semibold">{t('myProduce')}</span>
           <p className="text-2xl font-black text-emerald-800">{summary?.active_produce || 1}</p>
-          <span className="text-[11px] text-emerald-600 font-medium">1 Available for Sale</span>
+          <span className="text-[11px] text-emerald-600 font-medium">1 {t('availableForSale')}</span>
         </div>
 
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-1">
-          <span className="text-xs text-slate-500 font-semibold">Pending Offers</span>
+          <span className="text-xs text-slate-500 font-semibold">{t('pendingOffers')}</span>
           <p className="text-2xl font-black text-amber-600">{summary?.pending_offers || 0}</p>
-          <span className="text-[11px] text-slate-500 font-medium">Active negotiations</span>
+          <span className="text-[11px] text-slate-500 font-medium">{t('activeNegotiations')}</span>
         </div>
 
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-1">
-          <span className="text-xs text-slate-500 font-semibold">Signed Agreements</span>
+          <span className="text-xs text-slate-500 font-semibold">{t('signedAgreements')}</span>
           <p className="text-2xl font-black text-blue-600">{summary?.active_agreements || 0}</p>
-          <span className="text-[11px] text-slate-500 font-medium">Ready for slot booking</span>
+          <span className="text-[11px] text-slate-500 font-medium">{t('statusReadyForSlotBooking')}</span>
         </div>
 
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-1">
-          <span className="text-xs text-slate-500 font-semibold">Completed Trades</span>
+          <span className="text-xs text-slate-500 font-semibold">{t('completedTrades')}</span>
           <p className="text-2xl font-black text-slate-800">{summary?.completed_transactions || 15}</p>
-          <span className="text-[11px] text-emerald-600 font-medium">Verified history</span>
+          <span className="text-[11px] text-emerald-600 font-medium">{t('verifiedHistory')}</span>
         </div>
       </div>
 
@@ -88,10 +88,10 @@ export const FarmerDashboard: React.FC = () => {
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-base text-slate-800 flex items-center gap-2">
             <Sprout className="w-5 h-5 text-emerald-600" />
-            Active Produce Listing
+            {t('activeProduceListing')}
           </h3>
           <span className="text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full">
-            Status: Available
+            {t('status')}: {t('statusAvailable')}
           </span>
         </div>
 
@@ -103,17 +103,17 @@ export const FarmerDashboard: React.FC = () => {
           />
           <div className="space-y-1">
             <h4 className="font-black text-lg text-slate-800">Desi Hybrid Tomato</h4>
-            <p className="text-xs text-slate-600">Quantity: <span className="font-bold text-slate-800">500 kg</span> | Grade: <span className="font-bold text-emerald-700">Grade A</span></p>
-            <p className="text-xs text-slate-600">Location: Shadnagar, Farooqnagar, Rangareddy</p>
-            <p className="text-xs text-slate-600">Expected Price: <span className="font-extrabold text-emerald-700">₹30/kg</span></p>
+            <p className="text-xs text-slate-600">{t('quantity')}: <span className="font-bold text-slate-800">500 kg</span> | {t('quality')}: <span className="font-bold text-emerald-700">Grade A</span></p>
+            <p className="text-xs text-slate-600">{t('location')}: Shadnagar, Farooqnagar, Rangareddy</p>
+            <p className="text-xs text-slate-600">{t('expectedPrice')}: <span className="font-extrabold text-emerald-700">₹30/kg</span></p>
           </div>
           <div className="space-y-2 text-right md:border-l md:border-slate-200 md:pl-4">
-            <p className="text-xs text-slate-500 font-medium">Estimated Gross Value: <span className="font-bold text-slate-800">₹15,000</span></p>
+            <p className="text-xs text-slate-500 font-medium">{t('estimatedGrossValue')}: <span className="font-bold text-slate-800">₹15,000</span></p>
             <button
               onClick={() => navigate('/farmer/buyers')}
               className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow transition-colors flex items-center justify-center gap-1.5"
             >
-              <span>Discover Buyers & Negotiate</span>
+              <span>{t('discoverBuyers')}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -126,9 +126,9 @@ export const FarmerDashboard: React.FC = () => {
           <div>
             <h3 className="font-bold text-base text-slate-800 flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-500" />
-              Smart AI Recommended Buyers for Tomato (500 kg)
+              {t('smartRecommendedBuyers')} (Tomato 500 kg)
             </h3>
-            <p className="text-xs text-slate-500">Ranked by Highest Estimated Net Realisation & Reliability</p>
+            <p className="text-xs text-slate-500">{t('rankedByRealisation')}</p>
           </div>
           <span className="text-[11px] bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-full border border-amber-300">
             {t('aiRecommendation')}
@@ -141,24 +141,26 @@ export const FarmerDashboard: React.FC = () => {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] bg-emerald-600 text-white font-bold px-2 py-0.5 rounded-full">
-                    Score: {buyer.ai_score}/100
+                    {t('score')}: {buyer.ai_score}/100
                   </span>
                   <span className="text-xs text-slate-500">⭐ {buyer.rating} ({buyer.reliability_score}%)</span>
                 </div>
                 <h4 className="font-bold text-slate-800 text-sm leading-tight">{buyer.company_name}</h4>
                 <p className="text-xs text-slate-600">{buyer.location}</p>
                 <div className="bg-white p-2 rounded-lg border border-slate-200 text-xs space-y-0.5">
-                  <p className="text-slate-600">Offered Price: <span className="font-bold text-emerald-700">₹{buyer.offered_price}/kg</span></p>
-                  <p className="text-slate-600">Est. Net Realisation: <span className="font-bold text-slate-800">₹{buyer.estimated_net_realisation?.toLocaleString()}</span></p>
+                  <p className="text-slate-600">{t('offeredPrice')}: <span className="font-bold text-emerald-700">₹{buyer.offered_price}/kg</span></p>
+                  <p className="text-slate-600">{t('estimatedNetRealisation')}: <span className="font-bold text-slate-800">₹{buyer.estimated_net_realisation?.toLocaleString()}</span></p>
                 </div>
-                <p className="text-[11px] text-slate-500 italic line-clamp-2">"{buyer.ai_explanation?.en}"</p>
+                <p className="text-[11px] text-slate-500 italic line-clamp-2">
+                  "{buyer.ai_explanation?.[language] || buyer.ai_explanation?.en || buyer.ai_explanation}"
+                </p>
               </div>
 
               <button
                 onClick={() => navigate(`/farmer/buyers?selected_buyer=${buyer.buyer_id}`)}
                 className="w-full py-2 bg-slate-900 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition-colors"
               >
-                Select & Send Offer
+                {t('selectAndNegotiate')}
               </button>
             </div>
           ))}

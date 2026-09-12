@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { Building2, Upload, FileText, X, CheckCircle2, AlertCircle, Lock, Phone, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Building2, Upload, FileText, X, CheckCircle2, AlertCircle, Lock, Phone, ArrowRight, ShieldCheck } from 'lucide-react';
 import axios from 'axios';
 
 export const BuyerRegisterPage: React.FC = () => {
@@ -34,11 +34,11 @@ export const BuyerRegisterPage: React.FC = () => {
       const file = e.target.files[0];
       const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
       if (!validTypes.includes(file.type)) {
-        setValidationError("Invalid file format. Please upload PDF, JPG, JPEG, or PNG.");
+        setValidationError(t('errorInvalidFileType'));
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        setValidationError("File size exceeds 5MB limit.");
+        setValidationError(t('errorFileSizeLimit'));
         return;
       }
       setValidationError(null);
@@ -58,31 +58,32 @@ export const BuyerRegisterPage: React.FC = () => {
 
     // Validations
     if (!companyName.trim()) {
-      setValidationError("Please enter your company name.");
+      setValidationError(t('errorCompanyName'));
       return;
     }
     if (!companyId.trim()) {
-      setValidationError("Please enter your company ID.");
+      setValidationError(t('errorCompanyId'));
       return;
     }
-    if (!mobileNumber.trim() || mobileNumber.trim().replace(" ", "").length < 10) {
-      setValidationError("Please enter a valid 10-digit mobile number.");
+    const cleanMobile = mobileNumber.trim().replace(/\s+/g, "").replace("+91", "");
+    if (!cleanMobile || cleanMobile.length < 10) {
+      setValidationError(t('errorValidMobile'));
       return;
     }
     if (!email.trim() || !email.includes("@")) {
-      setValidationError("Please enter a valid corporate email address.");
+      setValidationError(t('errorValidEmail'));
       return;
     }
     if (!password || password.length < 6) {
-      setValidationError("Password must be at least 6 characters long.");
+      setValidationError(t('errorPasswordLength'));
       return;
     }
     if (password !== confirmPassword) {
-      setValidationError("Passwords do not match.");
+      setValidationError(t('errorPasswordsMismatch'));
       return;
     }
     if (!gstFile && !gstPreviewName) {
-      setValidationError("Please upload your GST certificate for business verification.");
+      setValidationError(t('errorUploadGst'));
       return;
     }
 
@@ -92,7 +93,7 @@ export const BuyerRegisterPage: React.FC = () => {
       company_name: companyName.trim(),
       company_id: companyId.trim(),
       contact_person: companyName.trim(),
-      mobile_number: mobileNumber.trim(),
+      mobile_number: cleanMobile,
       email: email.trim(),
       password: password,
       confirm_password: confirmPassword,
@@ -107,13 +108,13 @@ export const BuyerRegisterPage: React.FC = () => {
       procurement_categories: "Tomato, Paddy, Cotton, Vegetables"
     })
       .then(res => {
-        setSuccessMessage("Buyer registration submitted successfully. Account status: Pending Verification. Please wait for Admin approval before logging in.");
+        setSuccessMessage(t('successBuyerSubmitted'));
         setTimeout(() => {
           navigate('/login?role=buyer');
         }, 3000);
       })
       .catch(err => {
-        setValidationError(err.response?.data?.detail || "Buyer registration failed. Please check your details.");
+        setValidationError(err.response?.data?.detail || t('errorAuthFailed'));
       })
       .finally(() => setLoading(false));
   };
@@ -128,7 +129,7 @@ export const BuyerRegisterPage: React.FC = () => {
             <Building2 className="w-8 h-8 text-blue-200" />
           </div>
           <h2 className="text-2xl font-black tracking-tight">{t('buyerRegistration')}</h2>
-          <p className="text-xs text-blue-200 font-medium">Bulk Buyer & Food Processor Procurement Registration</p>
+          <p className="text-xs text-blue-200 font-medium">{t('buyerRegisterPortal')}</p>
         </div>
 
         {/* Form Body */}
@@ -156,25 +157,25 @@ export const BuyerRegisterPage: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-slate-700">Company Name *</label>
+                <label className="text-xs font-bold text-slate-700">{t('companyName')} *</label>
                 <input
                   type="text"
                   required
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
-                  placeholder="e.g. Shree Foods Pvt Ltd"
+                  placeholder={t('enterCompanyName')}
                   className="w-full mt-1 p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700">Company ID / Registration No. *</label>
+                <label className="text-xs font-bold text-slate-700">{t('companyId')} *</label>
                 <input
                   type="text"
                   required
                   value={companyId}
                   onChange={(e) => setCompanyId(e.target.value)}
-                  placeholder="e.g. CMP-TG-2026-8841"
+                  placeholder={t('enterCompanyId')}
                   className="w-full mt-1 p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
@@ -190,25 +191,25 @@ export const BuyerRegisterPage: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-slate-700">Mobile Number *</label>
+                <label className="text-xs font-bold text-slate-700">{t('mobileNumber')} *</label>
                 <input
                   type="tel"
                   required
                   value={mobileNumber}
                   onChange={(e) => setMobileNumber(e.target.value)}
-                  placeholder="e.g. 9876543211"
+                  placeholder={t('enterMobileNumber')}
                   className="w-full mt-1 p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700">Corporate Email ID *</label>
+                <label className="text-xs font-bold text-slate-700">{t('corporateEmail')} *</label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="e.g. procurement@shreefoods.com"
+                  placeholder={t('enterCorporateEmail')}
                   className="w-full mt-1 p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
@@ -224,25 +225,25 @@ export const BuyerRegisterPage: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-slate-700">Password *</label>
+                <label className="text-xs font-bold text-slate-700">{t('password')} *</label>
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Minimum 6 characters"
+                  placeholder={t('minSixChars')}
                   className="w-full mt-1 p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700">Confirm Password *</label>
+                <label className="text-xs font-bold text-slate-700">{t('confirmPassword')} *</label>
                 <input
                   type="password"
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Re-enter password"
+                  placeholder={t('reEnterPassword')}
                   className="w-full mt-1 p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
@@ -257,12 +258,12 @@ export const BuyerRegisterPage: React.FC = () => {
                 {t('businessVerification')}
               </h3>
               <span className="text-[10px] bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded">
-                Verification Status: Pending Verification
+                {t('verificationStatus')}: {t('statusPendingVerification')}
               </span>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700">Upload GST Certificate / Company Registration *</label>
+              <label className="text-xs font-bold text-slate-700">{t('uploadGstCert')} *</label>
               
               {gstPreviewName ? (
                 <div className="bg-slate-50 p-4 rounded-xl border border-slate-300 flex items-center justify-between">
@@ -270,14 +271,14 @@ export const BuyerRegisterPage: React.FC = () => {
                     <FileText className="w-6 h-6 text-blue-600" />
                     <div>
                       <p className="text-xs font-bold text-slate-800">{gstPreviewName}</p>
-                      <p className="text-[10px] text-slate-500">Document Uploaded Successfully</p>
+                      <p className="text-[10px] text-slate-500">{t('docUploadedSuccess')}</p>
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={handleRemoveFile}
-                    className="p-1 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Remove Document"
+                    className="p-1 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                    title={t('removeDoc')}
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -285,8 +286,8 @@ export const BuyerRegisterPage: React.FC = () => {
               ) : (
                 <div className="border-2 border-dashed border-slate-300 rounded-2xl p-6 text-center bg-slate-50 hover:bg-slate-100 transition-colors">
                   <Upload className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                  <p className="text-xs font-bold text-slate-700">Click to upload GST Certificate</p>
-                  <p className="text-[11px] text-slate-500 mt-1">{t('gstUploadNote')} (Max 5MB)</p>
+                  <p className="text-xs font-bold text-slate-700">{t('clickToUploadGst')}</p>
+                  <p className="text-[11px] text-slate-500 mt-1">{t('gstUploadNote')}</p>
                   <input
                     type="file"
                     accept=".pdf,.jpg,.jpeg,.png"
@@ -298,7 +299,7 @@ export const BuyerRegisterPage: React.FC = () => {
                     htmlFor="gst-upload-input"
                     className="mt-3 inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl cursor-pointer shadow-sm transition-colors"
                   >
-                    Select Document
+                    {t('selectDocument')}
                   </label>
                 </div>
               )}
@@ -308,9 +309,9 @@ export const BuyerRegisterPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading || !!successMessage}
-            className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm rounded-xl shadow-md transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm rounded-xl shadow-md transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span>{loading ? "Submitting Buyer Registration..." : "Submit Buyer Registration"}</span>
+            <span>{loading ? t('submittingRegistration') : t('submitBuyerRegBtn')}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 

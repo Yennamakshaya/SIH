@@ -20,12 +20,12 @@ def get_farmer_dashboard(current_user: User = Depends(require_role("farmer")), d
     
     pending_offers_count = db.query(Offer).filter(
         Offer.farmer_id == farmer.id,
-        Offer.status.in_(["Pending", "Negotiating"])
+        Offer.status.in_(["Pending", "Negotiating", "ACTIVE", "BUYER_PENDING", "FARMER_PENDING"])
     ).count()
 
     active_agreements_count = db.query(Agreement).filter(
         Agreement.farmer_id == farmer.id,
-        Agreement.status == "Signed"
+        Agreement.status.in_(["Signed", "Draft", "Active", "ACCEPTED"])
     ).count()
 
     transactions = db.query(Transaction).filter(Transaction.farmer_id == farmer.id).all()

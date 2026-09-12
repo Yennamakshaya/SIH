@@ -22,7 +22,7 @@ export const LoginPage: React.FC = () => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (!identifier.trim() || !password) {
-      setErrorMsg("Please enter your Mobile Number / Email / Username and Password.");
+      setErrorMsg(t('errorEnterCredentials'));
       return;
     }
     setErrorMsg(null);
@@ -41,10 +41,12 @@ export const LoginPage: React.FC = () => {
       else navigate('/admin/dashboard');
     })
     .catch(err => {
-      setErrorMsg(err.response?.data?.detail || "Authentication failed. Check your credentials.");
+      setErrorMsg(err.response?.data?.detail || t('errorAuthFailed'));
     })
     .finally(() => setLoading(false));
   };
+
+  const roleText = role === 'farmer' ? t('farmerRole') : role === 'buyer' ? t('buyerRole') : t('adminRole');
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-slate-100 flex items-center justify-center p-4">
@@ -55,7 +57,7 @@ export const LoginPage: React.FC = () => {
           <div className="inline-flex bg-emerald-600/60 p-3 rounded-2xl border border-emerald-500/50">
             <Sprout className="w-8 h-8 text-amber-300" />
           </div>
-          <h2 className="text-2xl font-black tracking-tight">{t('appName')} Telangana</h2>
+          <h2 className="text-2xl font-black tracking-tight">{t('appName')} {t('stateName')}</h2>
           <p className="text-xs text-emerald-200 font-medium">{t('enterCredentials')}</p>
         </div>
 
@@ -64,7 +66,7 @@ export const LoginPage: React.FC = () => {
           <button
             type="button"
             onClick={() => { setRole('farmer'); setErrorMsg(null); }}
-            className={`flex-1 py-2.5 text-xs font-bold rounded-xl flex items-center justify-center space-x-1.5 transition-all ${
+            className={`flex-1 py-2.5 text-xs font-bold rounded-xl flex items-center justify-center space-x-1.5 transition-all cursor-pointer ${
               role === 'farmer' ? 'bg-white text-emerald-800 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -74,7 +76,7 @@ export const LoginPage: React.FC = () => {
           <button
             type="button"
             onClick={() => { setRole('buyer'); setErrorMsg(null); }}
-            className={`flex-1 py-2.5 text-xs font-bold rounded-xl flex items-center justify-center space-x-1.5 transition-all ${
+            className={`flex-1 py-2.5 text-xs font-bold rounded-xl flex items-center justify-center space-x-1.5 transition-all cursor-pointer ${
               role === 'buyer' ? 'bg-white text-blue-800 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -84,7 +86,7 @@ export const LoginPage: React.FC = () => {
           <button
             type="button"
             onClick={() => { setRole('admin'); setErrorMsg(null); }}
-            className={`flex-1 py-2.5 text-xs font-bold rounded-xl flex items-center justify-center space-x-1.5 transition-all ${
+            className={`flex-1 py-2.5 text-xs font-bold rounded-xl flex items-center justify-center space-x-1.5 transition-all cursor-pointer ${
               role === 'admin' ? 'bg-white text-purple-800 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -110,7 +112,7 @@ export const LoginPage: React.FC = () => {
                 required
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="Enter Mobile / Email / Username"
+                placeholder={t('enterMobileOrEmail')}
                 className="w-full pl-9 pr-3 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
               />
             </div>
@@ -125,7 +127,7 @@ export const LoginPage: React.FC = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
+                placeholder={t('enterPassword')}
                 className="w-full pl-9 pr-3 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
               />
             </div>
@@ -134,7 +136,7 @@ export const LoginPage: React.FC = () => {
           <div className="flex items-center justify-between text-xs pt-1">
             <label className="flex items-center space-x-1.5 text-slate-600 cursor-pointer">
               <input type="checkbox" className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" defaultChecked />
-              <span>Remember session</span>
+              <span>{t('rememberSession')}</span>
             </label>
             <a
               href="/forgot-password"
@@ -147,7 +149,7 @@ export const LoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 text-white font-extrabold text-sm rounded-xl shadow-md transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${
+            className={`w-full py-3 text-white font-extrabold text-sm rounded-xl shadow-md transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer ${
               role === 'farmer'
                 ? 'bg-emerald-600 hover:bg-emerald-700'
                 : role === 'buyer'
@@ -155,7 +157,7 @@ export const LoginPage: React.FC = () => {
                 : 'bg-purple-600 hover:bg-purple-700'
             }`}
           >
-            <span>{loading ? "Authenticating..." : `${t('login')} as ${role.toUpperCase()}`}</span>
+            <span>{loading ? t('authenticating') : `${roleText} ${t('login')}`}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 
@@ -166,14 +168,14 @@ export const LoginPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigate('/register/farmer')}
-                className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition-colors"
+                className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition-colors cursor-pointer"
               >
                 {t('registerAsFarmer')}
               </button>
               <button
                 type="button"
                 onClick={() => navigate('/register/buyer')}
-                className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-300 rounded-xl text-xs font-bold transition-colors"
+                className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-300 rounded-xl text-xs font-bold transition-colors cursor-pointer"
               >
                 {t('registerAsBuyer')}
               </button>

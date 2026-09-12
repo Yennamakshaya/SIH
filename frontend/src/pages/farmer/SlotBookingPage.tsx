@@ -1,91 +1,450 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Calendar, Clock, CheckCircle2, Truck, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
+import {
+  Calendar, Clock, CheckCircle2, Truck, ArrowRight,
+  MapPin, Building2, Package, AlertCircle, RefreshCw,
+  ShieldCheck, Check, Sparkles, FileText
+} from 'lucide-react';
 import axios from 'axios';
 
+interface SlotOption {
+  id: number;
+  date: string;
+  raw_date: string;
+  time_window: string;
+  location: string;
+  type: string;
+  capacity?: string;
+  is_available: boolean;
+  status: string;
+}
+
+interface ActiveAgreement {
+  id: number;
+  agreement_code: string;
+  crop_name: string;
+  quantity: number;
+  quality: string;
+  final_price: number;
+  total_value: number;
+  farmer_name: string;
+  buyer_company: string;
+  pickup_location: string;
+  status: string;
+  procurement_id?: number | null;
+  slot_booking?: {
+    id: number;
+    slot_code: string;
+    slot_date: string;
+    time_window: string;
+    location: string;
+    status: string;
+  } | null;
+}
+
+interface BookingSuccessData {
+  slot_id: number;
+  slot_code: string;
+  slot_date: string;
+  time_window: string;
+  location: string;
+  crop_name: string;
+  quantity: number;
+  buyer_company: string;
+  farmer_name: string;
+  status: string;
+  procurement_id?: number | null;
+  agreement_id?: number;
+}
+
 export const SlotBookingPage: React.FC = () => {
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
-  const agreementId = Number(searchParams.get('agreement_id')) || 1;
+  const queryAgreementId = Number(searchParams.get('agreement_id')) || 0;
   const navigate = useNavigate();
 
-  const [slotDate, setSlotDate] = useState('2026-09-12');
-  const [timeWindow, setTimeWindow] = useState('10:00 AM – 12:00 PM');
-  const [bookedSlotCode, setBookedSlotCode] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [agreement, setAgreement] = useState<ActiveAgreement | null>(null);
+  const [availableSlots, setAvailableSlots] = useState<SlotOption[]>([]);
+  const [selectedSlotIndex, setSelectedSlotIndex] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [bookingLoading, setBookingLoading] = useState<boolean>(false);
+  const [bookingError, setBookingError] = useState<string | null>(null);
+  const [bookingSuccess, setBookingSuccess] = useState<BookingSuccessData | null>(null);
 
-  const availableSlots = [
-    { date: "12 Sep 2026", window: "10:00 AM – 12:00 PM" },
-    { date: "12 Sep 2026", window: "2:00 PM – 4:00 PM" },
-    { date: "13 Sep 2026", window: "10:00 AM – 12:00 PM" },
-    { date: "13 Sep 2026", window: "3:00 PM – 5:00 PM" }
-  ];
+  // Load Agreement and Available Slots on Mount
+  useEffect(() => {
+    fetchInitialData();
+  }, [queryAgreementId]);
 
-  const handleBookSlot = (d: string, w: string) => {
-    setSlotDate(d);
-    setTimeWindow(w);
+  const fetchInitialData = async () => {
     setLoading(true);
+    setBookingError(null);
+    try {
+      // 1. Fetch available slots
+      const slotsRes = await axios.get('/api/workflow/procurement/available-slots', {
+        params: queryAgreementId ? { agreement_id: queryAgreementId } : undefined
+      });
+      if (Array.isArray(slotsRes.data) && slotsRes.data.length > 0) {
+        setAvailableSlots(slotsRes.data);
+      } else {
+        setAvailableSlots([
+          { id: 1, date: "12 Sep 2026", raw_date: "2026-09-12", time_window: "08:00 AM – 10:00 AM", location: "Shadnagar APMC Collection Center, Rangareddy", type: "APMC Collection Yard", is_available: true, status: "Available" },
+          { id: 2, date: "12 Sep 2026", raw_date: "2026-09-12", time_window: "10:00 AM – 12:00 PM", location: "Shadnagar APMC Collection Center, Rangareddy", type: "APMC Collection Yard", is_available: true, status: "Available" },
+          { id: 3, date: "12 Sep 2026", raw_date: "2026-09-12", time_window: "02:00 PM – 04:00 PM", location: "Direct Farmgate Pickup (Telangana)", type: "Direct Farm Pickup", is_available: true, status: "Available" },
+          { id: 4, date: "13 Sep 2026", raw_date: "2026-09-13", time_window: "10:00 AM – 12:00 PM", location: "Khammam APMC Yard Hub, Khammam", type: "APMC Collection Yard", is_available: true, status: "Available" }
+        ]);
+      }
 
-    axios.post('/api/workflow/procurement/book-slot', {
-      agreement_id: agreementId,
-      slot_date: d,
-      time_window: w
-    })
-    .then(res => {
-      setBookedSlotCode(res.data.slot_code);
-    })
-    .catch(err => alert("Slot Error: " + err.response?.data?.detail))
-    .finally(() => setLoading(false));
+      // 2. Fetch active agreement details
+      const agrRes = await axios.get('/api/workflow/procurement/active-agreement', {
+        params: queryAgreementId ? { agreement_id: queryAgreementId } : undefined
+      });
+      if (agrRes.data) {
+        setAgreement(agrRes.data);
+        if (agrRes.data.slot_booking) {
+          setBookingSuccess({
+            slot_id: agrRes.data.slot_booking.id,
+            slot_code: agrRes.data.slot_booking.slot_code,
+            slot_date: agrRes.data.slot_booking.slot_date,
+            time_window: agrRes.data.slot_booking.time_window,
+            location: agrRes.data.slot_booking.location,
+            crop_name: agrRes.data.crop_name,
+            quantity: agrRes.data.quantity,
+            buyer_company: agrRes.data.buyer_company,
+            farmer_name: agrRes.data.farmer_name,
+            status: agrRes.data.slot_booking.status || "CONFIRMED",
+            procurement_id: agrRes.data.procurement_id,
+            agreement_id: agrRes.data.id
+          });
+        }
+      }
+    } catch (err: any) {
+      console.warn("Could not load full agreement details, setting standard defaults", err);
+      if (availableSlots.length === 0) {
+        setAvailableSlots([
+          { id: 1, date: "12 Sep 2026", raw_date: "2026-09-12", time_window: "08:00 AM – 10:00 AM", location: "Shadnagar APMC Collection Center, Rangareddy", type: "APMC Collection Yard", is_available: true, status: "Available" },
+          { id: 2, date: "12 Sep 2026", raw_date: "2026-09-12", time_window: "10:00 AM – 12:00 PM", location: "Shadnagar APMC Collection Center, Rangareddy", type: "APMC Collection Yard", is_available: true, status: "Available" },
+          { id: 3, date: "12 Sep 2026", raw_date: "2026-09-12", time_window: "02:00 PM – 04:00 PM", location: "Direct Farmgate Pickup (Telangana)", type: "Direct Farm Pickup", is_available: true, status: "Available" },
+          { id: 4, date: "13 Sep 2026", raw_date: "2026-09-13", time_window: "10:00 AM – 12:00 PM", location: "Khammam APMC Yard Hub, Khammam", type: "APMC Collection Yard", is_available: true, status: "Available" }
+        ]);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const handleConfirmSlotBooking = async () => {
+    if (!availableSlots[selectedSlotIndex]) return;
+
+    const chosenSlot = availableSlots[selectedSlotIndex];
+    setBookingLoading(true);
+    setBookingError(null);
+
+    try {
+      const payload = {
+        agreement_id: agreement?.id || queryAgreementId || undefined,
+        slot_id: chosenSlot.id,
+        slot_date: chosenSlot.date,
+        time_window: chosenSlot.time_window,
+        location: chosenSlot.location,
+        crop: agreement?.crop_name || "Grade A Produce",
+        quantity: agreement?.quantity || 500
+      };
+
+      const response = await axios.post('/api/workflow/procurement/book-slot', payload);
+
+      if (response.data) {
+        setBookingSuccess({
+          slot_id: response.data.slot_id || 1,
+          slot_code: response.data.slot_code,
+          slot_date: response.data.slot_date || chosenSlot.date,
+          time_window: response.data.time_window || chosenSlot.time_window,
+          location: response.data.location || chosenSlot.location,
+          crop_name: response.data.crop_name || agreement?.crop_name || "Produce",
+          quantity: response.data.quantity || agreement?.quantity || 500,
+          buyer_company: response.data.buyer_company || agreement?.buyer_company || "Verified Buyer",
+          farmer_name: response.data.farmer_name || agreement?.farmer_name || "Farmer",
+          status: response.data.status || "CONFIRMED",
+          procurement_id: response.data.procurement_id || 1,
+          agreement_id: response.data.agreement_id || agreement?.id
+        });
+      }
+    } catch (err: any) {
+      console.error("Slot Booking Error:", err);
+      const errorMsg =
+        err?.response?.data?.detail ||
+        err?.response?.data?.message ||
+        err?.message ||
+        "Unable to confirm slot booking. Please select another slot or try again.";
+      setBookingError(typeof errorMsg === 'string' ? errorMsg : "Slot booking encountered an unexpected error. Please try again.");
+    } finally {
+      setBookingLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto p-12 bg-white rounded-3xl border border-slate-200 shadow-sm flex flex-col items-center justify-center space-y-4">
+        <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin" />
+        <p className="text-sm font-semibold text-slate-600">Loading procurement slot options...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
-        <div className="border-b border-slate-100 pb-3">
-          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <Calendar className="w-6 h-6 text-emerald-600" />
-            Book Procurement Slot
-          </h1>
-          <p className="text-xs text-slate-500">Select a convenient date and time window for direct farm pickup.</p>
+    <div className="max-w-3xl mx-auto space-y-6 animate-in fade-in duration-300">
+      {/* Header Banner */}
+      <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center shadow-inner">
+              <Calendar className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                <span>{t('bookSlotTitle')}</span>
+                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  {t('telanganaHubs')}
+                </span>
+              </h1>
+              <p className="text-xs text-slate-500 font-medium">
+                {t('bookSlotSubtitle')}
+              </p>
+            </div>
+          </div>
+
+          {agreement && (
+            <div className="bg-slate-50 px-3.5 py-2 rounded-2xl border border-slate-200 text-right">
+              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">{t('activeAgreementLabel')}</span>
+              <span className="text-xs font-mono font-bold text-emerald-700">{agreement.agreement_code}</span>
+            </div>
+          )}
         </div>
 
-        {bookedSlotCode ? (
-          <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-2xl text-center space-y-3 animate-in fade-in">
-            <div className="w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center mx-auto shadow-md">
-              <CheckCircle2 className="w-7 h-7" />
+        {/* Active Produce Summary Bar */}
+        {agreement && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-emerald-50/60 p-3.5 rounded-2xl border border-emerald-100 text-xs">
+            <div>
+              <span className="text-[10px] text-emerald-800 font-bold uppercase flex items-center gap-1">
+                <Package className="w-3.5 h-3.5" /> {t('crop')}
+              </span>
+              <p className="font-extrabold text-slate-800">{agreement.crop_name}</p>
             </div>
-            <h3 className="text-xl font-extrabold text-emerald-950">Slot Booked Successfully!</h3>
-            <p className="text-xs text-emerald-800">Generated Slot Code: <span className="font-mono font-bold bg-white px-2 py-0.5 rounded border border-emerald-300">{bookedSlotCode}</span></p>
-            <p className="text-xs text-emerald-700 font-bold">{slotDate} | {timeWindow}</p>
-            
-            <button
-              onClick={() => navigate('/farmer/handover')}
-              className="mt-4 px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs rounded-xl shadow transition-colors inline-flex items-center gap-1.5"
-            >
-              <span>Proceed to Produce Handover</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            <div>
+              <span className="text-[10px] text-emerald-800 font-bold uppercase">{t('agreedQuantity')}</span>
+              <p className="font-extrabold text-slate-800">{agreement.quantity} kg ({agreement.quality})</p>
+            </div>
+            <div>
+              <span className="text-[10px] text-emerald-800 font-bold uppercase flex items-center gap-1">
+                <Building2 className="w-3.5 h-3.5" /> {t('buyerProcurer')}
+              </span>
+              <p className="font-extrabold text-slate-800 truncate">{agreement.buyer_company}</p>
+            </div>
+            <div>
+              <span className="text-[10px] text-emerald-800 font-bold uppercase">{t('agreedValue')}</span>
+              <p className="font-extrabold text-emerald-900 font-mono">₹{agreement.total_value?.toLocaleString() || '0'}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Error Alert Box */}
+        {bookingError && (
+          <div className="bg-rose-50 border border-rose-200 p-4 rounded-2xl flex items-start gap-3 text-rose-800 text-xs animate-in slide-in-from-top-2">
+            <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="font-bold">{t('slotBookingNotice')}</p>
+              <p className="text-rose-700 font-medium">{bookingError}</p>
+            </div>
+          </div>
+        )}
+
+        {/* SUCCESS CONFIRMATION VIEW */}
+        {bookingSuccess ? (
+          <div className="bg-emerald-50 border-2 border-emerald-300 p-6 rounded-3xl text-center space-y-5 animate-in zoom-in-95">
+            <div className="w-16 h-16 bg-emerald-600 text-white rounded-2xl flex items-center justify-center mx-auto shadow-lg ring-4 ring-emerald-100">
+              <CheckCircle2 className="w-9 h-9" />
+            </div>
+            <div className="space-y-1">
+              <span className="inline-block text-[11px] font-black uppercase tracking-widest bg-emerald-200 text-emerald-900 px-3 py-1 rounded-full">
+                {t('status')}: {bookingSuccess.status === 'CONFIRMED' ? t('statusConfirmed') : bookingSuccess.status}
+              </span>
+              <h3 className="text-2xl font-black text-emerald-950">{t('slotBookedSuccess')}</h3>
+              <p className="text-xs text-emerald-800 font-medium">
+                {t('slotBookedSuccessDesc')}
+              </p>
+            </div>
+
+            {/* Confirmation Details Card */}
+            <div className="bg-white p-5 rounded-2xl border border-emerald-200 shadow-sm text-left grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('bookingSlotCode')}</span>
+                <p className="font-mono font-black text-sm text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 inline-block">
+                  {bookingSuccess.slot_code}
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('cropAndQuantity')}</span>
+                <p className="font-extrabold text-slate-800 text-sm">
+                  {bookingSuccess.crop_name} • {bookingSuccess.quantity} kg
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('slotTime')}</span>
+                <p className="font-bold text-slate-800 flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-emerald-600" />
+                  {bookingSuccess.slot_date} ({bookingSuccess.time_window})
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('collectionCenter')}</span>
+                <p className="font-bold text-slate-800 flex items-center gap-1.5 truncate">
+                  <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
+                  {bookingSuccess.location}
+                </p>
+              </div>
+
+              <div className="sm:col-span-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-slate-500 font-medium">{t('assignedBuyer')}</span>
+                <span className="font-extrabold text-slate-900">{bookingSuccess.buyer_company}</span>
+              </div>
+            </div>
+
+            {/* Navigation Actions */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => navigate('/farmer/handover')}
+                className="w-full sm:w-auto px-6 py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+              >
+                <Truck className="w-4 h-4" />
+                <span>{t('continueToHandover')}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={() => navigate('/farmer/agreements')}
+                className="w-full sm:w-auto px-5 py-3 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <FileText className="w-4 h-4" />
+                <span>{t('viewMyAgreements')}</span>
+              </button>
+            </div>
           </div>
         ) : (
-          <div className="space-y-3">
-            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Available Slot Windows</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {availableSlots.map((s, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => handleBookSlot(s.date, s.window)}
-                  className="bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-500 p-4 rounded-xl cursor-pointer transition-all space-y-1"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-800 text-sm">{s.date}</span>
-                    <Clock className="w-4 h-4 text-emerald-600" />
-                  </div>
-                  <p className="text-xs text-slate-600 font-medium">{s.window}</p>
-                  <span className="inline-block text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
-                    Available
+          /* SLOT SELECTION VIEW */
+          <div className="space-y-5">
+            <div>
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+                {t('slotStepOne')}
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                {availableSlots.map((slot, idx) => {
+                  const isSelected = selectedSlotIndex === idx;
+                  const isAvailable = slot.is_available !== false;
+
+                  return (
+                    <div
+                      key={slot.id || idx}
+                      onClick={() => isAvailable && setSelectedSlotIndex(idx)}
+                      className={`relative p-4 rounded-2xl border transition-all cursor-pointer select-none space-y-2.5 ${
+                        isSelected
+                          ? 'border-emerald-600 bg-emerald-50/70 ring-2 ring-emerald-500 shadow-sm'
+                          : isAvailable
+                          ? 'border-slate-200 bg-white hover:border-emerald-400 hover:bg-slate-50/60 shadow-xs'
+                          : 'border-slate-200 bg-slate-100 opacity-60 cursor-not-allowed'
+                      }`}
+                    >
+                      {/* Top Header */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className={`w-4 h-4 ${isSelected ? 'text-emerald-700' : 'text-slate-500'}`} />
+                          <span className="font-extrabold text-slate-800 text-sm">{slot.date}</span>
+                        </div>
+                        {isSelected ? (
+                          <span className="w-5 h-5 bg-emerald-600 text-white rounded-full flex items-center justify-center">
+                            <Check className="w-3.5 h-3.5" />
+                          </span>
+                        ) : (
+                          <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+                            {slot.status === 'Available' ? t('statusAvailable') : slot.status}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Time Window */}
+                      <div className="flex items-center gap-1.5 text-xs text-slate-700 font-bold">
+                        <Clock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span>{slot.time_window}</span>
+                      </div>
+
+                      {/* Hub / Location */}
+                      <div className="flex items-start gap-1.5 text-[11px] text-slate-500 font-medium">
+                        <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
+                        <span className="truncate">{slot.location}</span>
+                      </div>
+
+                      {/* Capacity tag */}
+                      <div className="pt-1 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
+                        <span>{slot.type}</span>
+                        {slot.capacity && <span>Cap: {slot.capacity}</span>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Selected Slot Review Panel */}
+            {availableSlots[selectedSlotIndex] && (
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-emerald-600" />
+                    <span>{t('slotStepTwo')}</span>
+                  </h3>
+                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100/70 px-2.5 py-0.5 rounded-full">
+                    {t('statusReadyToConfirm')}
                   </span>
                 </div>
-              ))}
-            </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                  <div className="bg-white p-3 rounded-xl border border-slate-200">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase block">{t('scheduledDate')}</span>
+                    <span className="font-extrabold text-slate-800">{availableSlots[selectedSlotIndex].date}</span>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl border border-slate-200">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase block">{t('timeWindow')}</span>
+                    <span className="font-extrabold text-emerald-800">{availableSlots[selectedSlotIndex].time_window}</span>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl border border-slate-200 col-span-2 sm:col-span-1">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase block">{t('collectionCenter')}</span>
+                    <span className="font-bold text-slate-800 truncate block">{availableSlots[selectedSlotIndex].location}</span>
+                  </div>
+                </div>
+
+                {/* Confirm Button */}
+                <button
+                  onClick={handleConfirmSlotBooking}
+                  disabled={bookingLoading || !availableSlots[selectedSlotIndex].is_available}
+                  className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-black text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer"
+                >
+                  {bookingLoading ? (
+                    <>
+                      <RefreshCw className="w-5 h-5 animate-spin" />
+                      <span>{t('confirmingSlotReservation')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-5 h-5" />
+                      <span>{t('confirmAndBookSlot')}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

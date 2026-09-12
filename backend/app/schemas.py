@@ -104,20 +104,20 @@ class AddRequirementSchema(BaseModel):
 class SendOfferSchema(BaseModel):
     produce_id: Optional[int] = None
     requirement_id: Optional[int] = None
-    farmer_id: int
-    buyer_id: int
+    farmer_id: Optional[int] = None
+    buyer_id: Optional[int] = None
     crop_name: str
     quantity: float
     price_per_kg: float
-    pickup_date: str
-    delivery_location: str
+    pickup_date: Optional[str] = None
+    delivery_location: Optional[str] = None
     payment_terms: str = "100% on Quality Confirmation"
     message: Optional[str] = None
 
 class CounterOfferSchema(BaseModel):
-    offer_id: int
+    offer_id: Optional[int] = None
     price_per_kg: float
-    quantity: float
+    quantity: Optional[float] = None
     message: Optional[str] = None
 
 # Agreement Sign Schema
@@ -126,9 +126,13 @@ class SignAgreementSchema(BaseModel):
 
 # Slot Booking Schema
 class BookSlotSchema(BaseModel):
-    agreement_id: int
-    slot_date: str
-    time_window: str
+    agreement_id: Optional[int] = None
+    slot_id: Optional[int] = None
+    slot_date: Optional[str] = None
+    time_window: Optional[str] = None
+    location: Optional[str] = None
+    crop: Optional[str] = None
+    quantity: Optional[float] = None
 
 # Quality Confirmation Schema
 class QualityConfirmSchema(BaseModel):
@@ -140,7 +144,8 @@ class QualityConfirmSchema(BaseModel):
 
 # Payment Schema
 class ProcessPaymentSchema(BaseModel):
-    procurement_id: int
+    procurement_id: Optional[int] = None
+    transaction_id: Optional[int] = None
     payment_method: str = "Direct Bank Transfer (Prototype Sandbox)"
 
 # Rating Feedback Schema
