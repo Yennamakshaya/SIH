@@ -581,7 +581,6 @@ export const translations = {
     successGrievanceSubmitted: "Grievance Registered Successfully!",
 
     // Notifications Center
-    notifications: "Notifications",
     notificationsTitle: "Notifications Center",
     noNotifications: "No notifications yet",
     markAllAsRead: "Mark all as read",
@@ -1175,7 +1174,6 @@ export const translations = {
     successGrievanceSubmitted: "ఫిర్యాదు విజయవంతంగా నమోదైంది!",
 
     // Notifications Center
-    notifications: "నోటిఫికేషన్‌లు",
     notificationsTitle: "నోటిఫికేషన్ల కేంద్రం",
     noNotifications: "ఇంకా నోటిఫికేషన్‌లు లేవు",
     markAllAsRead: "అన్నీ చదివినట్లు గుర్తించు",
@@ -1769,7 +1767,6 @@ export const translations = {
     successGrievanceSubmitted: "शिकायत सफलतापूर्वक दर्ज हो गई!",
 
     // Notifications Center
-    notifications: "सूचनाएं",
     notificationsTitle: "सूचना केंद्र",
     noNotifications: "अभी कोई सूचना नहीं है",
     markAllAsRead: "सभी को पढ़ा हुआ चिह्नित करें",
